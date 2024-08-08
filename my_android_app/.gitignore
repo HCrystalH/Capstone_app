@@ -31,6 +31,13 @@ migrate_working_dir/
 .pub/
 /build/
 
+# My configuration 
+.ios/
+.linux/
+.macos/
+.windows/
+# My configuration ENDS HERE
+
 # Symbolication related
 app.*.symbols
 
