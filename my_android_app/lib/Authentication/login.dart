@@ -1,97 +1,147 @@
 import 'package:flutter/material.dart';
+import 'package:my_android_app/Home/home_screen.dart';
+import 'auth.dart';
+import 'signup.dart';
 
-class LoginPage extends StatelessWidget {
+String email = '';
+
+@immutable
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  /*        Declare Variables       */
+
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passController = TextEditingController();
+
+  String password = '';
+  bool _showPass = false;
+  // Variables to check email and password are full filled or not
+  bool checkEmail = false;
+  bool checkPassword = false;
+
+  // Variables to check validity of email and password
+  var _emailInvalid = false;
+  var _passInvalid = false;
+
+  final AuthService _auth = AuthService();
+  /* Declared Variables END */
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
-      children: [
-        Stack(
-          children: [
-            SizedBox(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Image.asset(
-                  "assets/Images/bgapp.jpg",
-                  fit: BoxFit.fill,
-                )),
-            const Positioned(
-                top: 20,
-                left: 150,
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(102, 50, 9, 234)),
-                )),
-            Positioned(
-                top: 100,
-                left: 50,
-                child: Column(children: [
-                  // Username
-                  usernameTextField(),
-                  const SizedBox(height: 25),
+        resizeToAvoidBottomInset: false,
+        body: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        child: Image.asset(
+                          "assets/Images/bgapp.jpg",
+                          fit: BoxFit.fill,
+                        )),
+                    const Positioned(
+                        top: 20,
+                        left: 150,
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                              fontSize: 35,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(102, 50, 9, 234)),
+                        )),
+                    Positioned(
+                        top: 100,
+                        left: 50,
+                        child: Column(children: [
+                          // Username
+                          usernameTextField(),
+                          const SizedBox(height: 25),
 
-                  // Password
-                  passwordTextField(),
-                  const SizedBox(height: 55),
-                  // Login button
-                  Container(
-                      height: 50,
-                      width: 300,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6B75CE),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Text("Login",
+                          // Password
+                          passwordTextField(),
+                          const SizedBox(height: 55),
+                          // Login button
+                          Container(
+                              height: 50,
+                              width: 300,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6B75CE),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text("Login",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    )),
+                              )),
+                          const SizedBox(height: 20),
+                          // Forget password
+                          const Text(
+                            "Forget your password? ",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                            )),
-                      )),
-                  const SizedBox(height: 20),
-                  // Forget password
-                  const Text(
-                    "Forget your password? ",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
 
-                  // Login with Facebook account
-                  facebookField(),
-                  const SizedBox(height: 20),
-                  // Login with Google account
-                  googleField(),
+                          // Login with Facebook account
+                          facebookField(),
+                          const SizedBox(height: 20),
+                          // Login with Google account
+                          googleField(),
 
-                  // Sign up new account
-                  const SizedBox(height: 20),
-                  const Text.rich(TextSpan(children: [
-                    TextSpan(text: " Don't have an account? "),
-                    TextSpan(
-                        text: " Sign up ",
-                        style: TextStyle(
-                            color: Color(0xFF6b75CE),
-                            fontWeight: FontWeight.bold)),
-                  ])),
-                ])),
-          ],
-        ),
+                          // Sign up new account
+                          const SizedBox(height: 20),
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 5, 0, 50),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Don\'t have an account ?',
+                                    style: TextStyle(fontSize: 15),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const SignUpScreen()));
+                                    },
+                                    child: const Text('Sign Up',
+                                        style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 121, 180, 137),
+                                            fontSize: 15)),
+                                  )
+                                ],
+                              )),
+                        ])),
+                  ],
+                ),
 
-        // For other ways to connect
-      ],
-    ));
+                // For other ways to connect
+              ],
+            )));
   }
 
   Container usernameTextField() {
@@ -101,9 +151,9 @@ class LoginPage extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(25),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(left: 25),
               child: Icon(
                 Icons.person_outlined,
@@ -112,25 +162,33 @@ class LoginPage extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 5,
                   bottom: 3,
                   left: 18,
                 ),
-                child: TextField(
+                child: TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
-                      hintText: "Enter Username",
-                      hintStyle: TextStyle(color: Colors.black45),
+                      hintText: "Enter your email",
+                      errorText: _emailInvalid ? "Invalid email" : null,
+                      hintStyle: const TextStyle(color: Colors.black45),
                       border: InputBorder.none),
+                  onChanged: (value) {
+                    setState(() {
+                      email = value;
+                      checkEmail = true;
+                    });
+                  },
                 ),
               ),
             ),
-            Padding(
-                padding: EdgeInsets.only(right: 15),
-                child: Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                )),
+            // const Padding(
+            //     padding: EdgeInsets.only(right: 15),
+            //     child: Icon(
+            //       Icons.check_circle,
+            //       color: Colors.green,
+            //     )),
           ],
         ));
   }
@@ -142,9 +200,9 @@ class LoginPage extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(25),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(left: 25),
               child: Icon(
                 Icons.lock_open_outlined,
@@ -153,19 +211,40 @@ class LoginPage extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 5,
                   bottom: 3,
                   left: 18,
                 ),
-                child: TextField(
+                child: TextFormField(
+                  controller: _passController,
+                  obscureText: !_showPass,
                   decoration: InputDecoration(
                       hintText: "Enter Password",
-                      hintStyle: TextStyle(color: Colors.black45),
+                      errorText: _passInvalid
+                          ? "Password length must be at least 8"
+                          : null,
+                      hintStyle: const TextStyle(color: Colors.black45),
                       border: InputBorder.none),
+                  onChanged: (value) {
+                    setState(() {
+                      password = value;
+                      checkPassword = true;
+                    });
+                  },
                 ),
               ),
             ),
+            GestureDetector(
+              onTap: onToggleShowPass,
+              child: Text(
+                _showPass ? "HIDE" : "SHOW",
+                style: const TextStyle(
+                    color: Color.fromARGB(255, 121, 180, 137),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold),
+              ),
+            )
           ],
         ));
   }
@@ -189,7 +268,7 @@ class LoginPage extends StatelessWidget {
           SizedBox(
             width: 10,
           ),
-          Text("Login with Facebook",
+          Text("Facebook account",
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 18,
@@ -202,29 +281,49 @@ class LoginPage extends StatelessWidget {
 
   Container googleField() {
     return Container(
-      height: 50,
-      width: 300,
-      decoration: BoxDecoration(
-          color: Colors.white70, borderRadius: BorderRadius.circular(50)),
-      child: Row(
-        children: [
-          const SizedBox(
-            width: 30,
+        height: 50,
+        width: 300,
+        decoration: BoxDecoration(
+            color: Colors.white70, borderRadius: BorderRadius.circular(50)),
+        child: ElevatedButton(
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 30,
+              ),
+              Image.asset(
+                "assets/google.png",
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              const Text("Login with Google",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(163, 0, 142, 237))),
+            ],
           ),
-          Image.asset(
-            "assets/google.png",
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          const Text("Login with Google",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(163, 0, 142, 237))),
-        ],
-      ),
-    );
+          onPressed: () {
+            AuthService().signInWithGoogle().then((result) {
+              if (result != null) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const HomeScreen();
+                    },
+                  ),
+                );
+              }
+            });
+          },
+        ));
+  }
+
+  void onToggleShowPass() {
+    setState(() {
+      _showPass = !_showPass;
+    });
   }
 }
