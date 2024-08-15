@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Home/home_screen.dart';
-import 'auth.dart';
+import 'package:my_android_app/Widget/snack_bar.dart';
+// import 'package:my_android_app/Home/home_screen.dart';
+import '../Authentication/auth.dart';
 import 'signup.dart';
+import '../Widget/text_field.dart';
+import '../Widget/button.dart';
+import '../Authentication/google_auth.dart';
+import '../Authentication/forgot_password.dart';
+import '../Authentication/phoneLogin/phone_auth.dart';
 
 String email = '';
 
@@ -16,10 +23,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   /*        Declare Variables       */
 
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passController = TextEditingController();
-
+  bool isLoading = false;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   String password = '';
   bool _showPass = false;
   // Variables to check email and password are full filled or not
@@ -33,220 +39,147 @@ class _LoginPageState extends State<LoginPage> {
   final AuthService _auth = AuthService();
   /* Declared Variables END */
 
+  // Email and password authencation part
+  void login() async {
+    setState(() {
+      isLoading = true;
+    });
+    // Sign up user using my own method
+    String res = await AuthService().loginUser(
+      email: emailController.text,
+      password: passwordController.text,
+    );
+
+    if (res == "success") {
+      setState(() {
+        isLoading = false;
+      });
+      // Navigate user to home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      // Show error
+      showSnackBar(context, res);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
+
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Form(
-            key: _formKey,
-            child: Column(
+      resizeToAvoidBottomInset: false,
+      // resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+          child: SizedBox(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: height / 3,
+              child: Image.asset('assets/Images/login.jpg'),
+            ),
+            TextFieldInput(
+                icon: Icons.person,
+                textEditingController: emailController,
+                hintText: 'Enter your email',
+                textInputType: TextInputType.text),
+            TextFieldInput(
+              icon: Icons.lock,
+              textEditingController: passwordController,
+              hintText: 'Enter your passord',
+              textInputType: TextInputType.text,
+              isPass: true,
+            ),
+            //  we call our forgot password below the login in button
+            const ForgotPassword(),
+            MyButtons(onTap: login, text: "Log In"),
+
+            Row(
               children: [
-                Stack(
+                Expanded(
+                  child: Container(height: 1, color: Colors.black26),
+                ),
+                const Text("  or  "),
+                Expanded(
+                  child: Container(height: 1, color: Colors.black26),
+                )
+              ],
+            ),
+            // for google login
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+                onPressed: () async {
+                  await FirebaseServices().signInWithGoogle();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(),
+                    ),
+                  );
+                },
+                child: Row(
                   children: [
-                    SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        child: Image.asset(
-                          "assets/Images/bgapp.jpg",
-                          fit: BoxFit.fill,
-                        )),
-                    const Positioned(
-                        top: 20,
-                        left: 150,
-                        child: Text(
-                          "Login",
-                          style: TextStyle(
-                              fontSize: 35,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(102, 50, 9, 234)),
-                        )),
-                    Positioned(
-                        top: 100,
-                        left: 50,
-                        child: Column(children: [
-                          // Username
-                          usernameTextField(),
-                          const SizedBox(height: 25),
-
-                          // Password
-                          passwordTextField(),
-                          const SizedBox(height: 55),
-                          // Login button
-                          Container(
-                              height: 50,
-                              width: 300,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF6B75CE),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Text("Login",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    )),
-                              )),
-                          const SizedBox(height: 20),
-                          // Forget password
-                          const Text(
-                            "Forget your password? ",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 40),
-
-                          // Login with Facebook account
-                          facebookField(),
-                          const SizedBox(height: 20),
-                          // Login with Google account
-                          googleField(),
-
-                          // Sign up new account
-                          const SizedBox(height: 20),
-                          Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 5, 0, 50),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    'Don\'t have an account ?',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const SignUpScreen()));
-                                    },
-                                    child: const Text('Sign Up',
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 121, 180, 137),
-                                            fontSize: 15)),
-                                  )
-                                ],
-                              )),
-                        ])),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Image.network(
+                        "https://ouch-cdn2.icons8.com/VGHyfDgzIiyEwg3RIll1nYupfj653vnEPRLr0AeoJ8g/rs:fit:456:456/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9wbmcvODg2/LzRjNzU2YThjLTQx/MjgtNGZlZS04MDNl/LTAwMTM0YzEwOTMy/Ny5wbmc.png",
+                        height: 35,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      "Login with Google",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    )
                   ],
                 ),
-
-                // For other ways to connect
-              ],
-            )));
-  }
-
-  Container usernameTextField() {
-    return Container(
-        width: 300,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 25),
-              child: Icon(
-                Icons.person_outlined,
-                color: Colors.black45,
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 5,
-                  bottom: 3,
-                  left: 18,
-                ),
-                child: TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                      hintText: "Enter your email",
-                      errorText: _emailInvalid ? "Invalid email" : null,
-                      hintStyle: const TextStyle(color: Colors.black45),
-                      border: InputBorder.none),
-                  onChanged: (value) {
-                    setState(() {
-                      email = value;
-                      checkEmail = true;
-                    });
-                  },
-                ),
+            // for phone authentication
+            const PhoneAuthentication(),
+
+            // Don't have an account? got to signup screen
+            Padding(
+              padding: const EdgeInsets.only(top: 10, left: 100),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? "),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "SignUp",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
               ),
             ),
-            // const Padding(
-            //     padding: EdgeInsets.only(right: 15),
-            //     child: Icon(
-            //       Icons.check_circle,
-            //       color: Colors.green,
-            //     )),
           ],
-        ));
-  }
-
-  Container passwordTextField() {
-    return Container(
-        width: 300,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
         ),
-        child: Row(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 25),
-              child: Icon(
-                Icons.lock_open_outlined,
-                color: Colors.black45,
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 5,
-                  bottom: 3,
-                  left: 18,
-                ),
-                child: TextFormField(
-                  controller: _passController,
-                  obscureText: !_showPass,
-                  decoration: InputDecoration(
-                      hintText: "Enter Password",
-                      errorText: _passInvalid
-                          ? "Password length must be at least 8"
-                          : null,
-                      hintStyle: const TextStyle(color: Colors.black45),
-                      border: InputBorder.none),
-                  onChanged: (value) {
-                    setState(() {
-                      password = value;
-                      checkPassword = true;
-                    });
-                  },
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: onToggleShowPass,
-              child: Text(
-                _showPass ? "HIDE" : "SHOW",
-                style: const TextStyle(
-                    color: Color.fromARGB(255, 121, 180, 137),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold),
-              ),
-            )
-          ],
-        ));
+      )),
+    );
   }
 
   Container facebookField() {
@@ -306,17 +239,17 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           onPressed: () {
-            AuthService().signInWithGoogle().then((result) {
-              if (result != null) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const HomeScreen();
-                    },
-                  ),
-                );
-              }
-            });
+            // AuthService().signInWithGoogle().then((result) {
+            //   if (result != null) {
+            //     // Navigator.of(context).push(
+            //     //   MaterialPageRoute(
+            //     //     builder: (context) {
+            //     //       return const HomeScreen();
+            //     //     },
+            //     //   ),
+            //     // );
+            //   }
+            // });
           },
         ));
   }
