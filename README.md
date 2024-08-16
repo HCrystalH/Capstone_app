@@ -1,6 +1,6 @@
 # Capstone_app
 
-1. Check local.properties --> sdk
+1. Check local.properties(module) - have to add by yourself --> about sdk, flutter location
 
 2. Check gradle-wrapper.properties
 
