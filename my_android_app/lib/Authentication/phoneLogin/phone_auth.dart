@@ -109,7 +109,7 @@ class _PhoneAuthenticationState extends State<PhoneAuthentication> {
                               phoneNumber: phoneController.text,
                               verificationCompleted: (phoneAuthCredential) {},
                               verificationFailed: (error) {
-                                print(error);
+                                debugPrint(error.toString());
                               },
                               codeSent: (verificationId, forceResendingToken) {
                                 // if code is send successfulley then neavigate to next screen

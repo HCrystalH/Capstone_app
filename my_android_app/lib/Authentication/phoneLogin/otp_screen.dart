@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_android_app/Home/home_screen.dart';
+import 'package:my_android_app/Screens/home_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String verificationId;

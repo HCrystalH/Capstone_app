@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
-// import 'package:my_android_app/Authentication/login.dart';
+import 'package:my_android_app/Screens/home_screen.dart';
+import 'package:my_android_app/Widget/navigation_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +18,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if(snapshot.hasData){
+            return const NavBar();
+          }else{
+            return const LoginPage();
+          }
+        },
+      ),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_android_app/Home/home_screen.dart';
+import 'package:my_android_app/Screens/home_screen.dart';
 import 'package:my_android_app/Widget/snack_bar.dart';
 // import 'package:my_android_app/Home/home_screen.dart';
 import '../Authentication/auth.dart';
@@ -9,7 +9,7 @@ import '../Widget/button.dart';
 import '../Authentication/google_auth.dart';
 import '../Authentication/forgot_password.dart';
 import '../Authentication/phoneLogin/phone_auth.dart';
-
+import 'package:my_android_app/Widget/navigation_bar.dart';
 String email = '';
 
 @immutable
@@ -33,8 +33,8 @@ class _LoginPageState extends State<LoginPage> {
   bool checkPassword = false;
 
   // Variables to check validity of email and password
-  var _emailInvalid = false;
-  var _passInvalid = false;
+  // var _emailInvalid = false;
+  // var _passInvalid = false;
 
   final AuthService _auth = AuthService();
   /* Declared Variables END */
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate user to home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
+          builder: (context) => const NavBar(),
         ),
       );
     } else {
@@ -96,10 +96,11 @@ class _LoginPageState extends State<LoginPage> {
               textEditingController: passwordController,
               hintText: 'Enter your passord',
               textInputType: TextInputType.text,
-              isPass: true,
+              isPass: false,
             ),
-            //  we call our forgot password below the login in button
+            //   Forgot password 
             const ForgotPassword(),
+            // Login button
             MyButtons(onTap: login, text: "Log In"),
 
             Row(
@@ -123,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const HomeScreen(),
+                      builder: (context) =>  const NavBar(),
                     ),
                   );
                 },

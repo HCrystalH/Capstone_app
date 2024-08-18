@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/auth.dart';
-import 'package:my_android_app/Home/home_screen.dart';
+import 'package:my_android_app/Screens/home_screen.dart';
 import 'login.dart';
 import '../Widget/button.dart';
 import '../Widget/text_field.dart';
