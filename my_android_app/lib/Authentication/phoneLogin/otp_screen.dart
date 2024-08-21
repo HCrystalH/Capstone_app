@@ -1,3 +1,5 @@
+// import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/home_screen.dart';
@@ -75,7 +77,7 @@ class _OTPScreenState extends State<OTPScreen> {
                           ),
                         );
                       } catch (e) {
-                        print(e);
+                        // log(e.toString());
                       }
                       setState(() {
                         isLoadin = false;

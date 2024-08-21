@@ -33,7 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       // Navigate to the login Screen
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomeScreen()));
+          MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       setState(() {
         isLoading = false;

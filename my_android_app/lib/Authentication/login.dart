@@ -152,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             // for phone authentication
-            const PhoneAuthentication(),
+            // const PhoneAuthentication(),
 
             // Don't have an account? got to signup screen
             Padding(

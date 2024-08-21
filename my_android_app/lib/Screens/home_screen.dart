@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
+// import 'package:my_android_app/Authentication/login.dart';
+import 'package:my_android_app/Screens/user_screen.dart';
+import '../Widget/navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,12 +20,18 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: const Color.fromARGB(253, 230, 235, 243),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('Manage Home'),
-       
+        title: const Text('Manage Home',),
         actions: [
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>  const UserScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -30,13 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
         
       child: Padding(
         padding: const EdgeInsets.only(left: 10,right:10),
-          
-  
           child:  Column(
-            
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const Text(
                 'Hey, Crystal 👋',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -92,16 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 functionCard(context,"Monitor Sensor","Kitchen",Icons.thermostat, Colors.orangeAccent,Colors.white), 
 
                 const SizedBox(width: 10),
-                functionCard(context, "Air Condition", "Bed Room", Icons.air_outlined, Colors.white,Color.fromARGB(255, 109, 4, 125)),
+                functionCard(context, "Air Condition", "Bed Room", Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
               
               ],), 
+           
             ],
      
         ),
         
       ),
             
-      )
+      ),
+    
+     
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import '../Widget/button.dart';
-import '../Authentication/auth.dart';
+// import '../Authentication/auth.dart';
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -10,7 +10,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreen extends State<SettingsScreen> {
-  final AuthService _auth = AuthService();
+  // final AuthService _auth = AuthService();
   bool isLoading = false;
   void logout() async{
      setState(() {
@@ -27,7 +27,7 @@ class _SettingsScreen extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 22, 233, 22),
+      backgroundColor: const Color.fromARGB(255, 22, 233, 22),
       body: Center(
         child: SizedBox(
             // child: Column
