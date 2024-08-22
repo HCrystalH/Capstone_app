@@ -1,104 +1,146 @@
-// import 'dart:async';
-// import 'dart:io';
 // import 'package:mqtt_client/mqtt_client.dart';
 // import 'package:mqtt_client/mqtt_server_client.dart';
+// class MqttHelper {
+//   final String _serverAddress;  // for example : io.adafruit.com
+//   final String _userName, _userKey;
+  
+//   late MqttClient client;
+  
+//   MqttHelper({
+//     required String serverAddress,
+//     required String userName,
+//     required String userKey
+//   }) : _serverAddress = serverAddress, _userName = userName, _userKey = userKey{
+//     client  = MqttServerClient(_serverAddress, '1883');
+//   }
+  
+//   // Methods
+//   void mqttConnect() async{
+//     client.logging(on: false);
+//     client.keepAlivePeriod = 60;
+//     client.onDisconnected = onDisconnected;
+//     client.onConnected = onConnected;
+//     client.onSubscribed = onSubscribed;
+//     client.pongCallback = pong;
 
-// final client = MqttServerClient('io.adafruit.com', '1883');
-
-// Future<int> main() async {
-//   client.logging(on: false);
-//   client.keepAlivePeriod = 60;
-//   client.onDisconnected = onDisconnected;
-//   client.onConnected = onConnected;
-//   client.onSubscribed = onSubscribed;
-//   client.pongCallback = pong;
-
-//   final connMess = MqttConnectMessage()
-//       .authenticateAs('HCrystalH', 'aio_KGIG71gm5KmegLntvX7fXkFGV6CA')
+//     final connMess = MqttConnectMessage()
+//       .authenticateAs(_userName, _userKey)
 //       .withClientIdentifier('FLUTTER_CLIENT')
 //       .withWillTopic('willtopic') 
 //       .withWillMessage('My Will message')
 //       .startClean() 
 //       .withWillQos(MqttQos.atLeastOnce);
-//   print('Client connecting....');
-//   client.connectionMessage = connMess;
+    
+//     client.connectionMessage = connMess;
 
-//   try {
-//     await client.connect();
-//   } on NoConnectionException catch (e) {
-//     print('Client exception: $e');
-//     client.disconnect();
-//   } on SocketException catch (e) {
-//     print('Socket exception: $e');
-//     client.disconnect();
+//     try {
+//       print("Connecting....");
+//       await client.connect();
+      
+//     } on NoConnectionException catch (e) {
+//       print('Client exception: $e');
+//       client.disconnect();
+//     }
+
+//     if (isConnected()) {
+//       print('Adafruit connected');
+//     } else {
+//       print('Client connection failed - disconnecting, status is ${client.connectionStatus}');
+//       client.disconnect();
+//     }
 //   }
 
-//   if (client.connectionStatus!.state == MqttConnectionState.connected) {
-//     print('Adafruit connected');
-//   } else {
-//     print('Client connection failed - disconnecting, status is ${client.connectionStatus}');
-//     client.disconnect();
-//     exit(-1);
+//   void mqttSubscribe(String subTopic) async{
+//     //  const subTopic = 'HCrystalH/feeds/humidity';
+//     print('Subscribing to the $subTopic topic');
+//     await MqttUtilities.asyncSleep(1);
+//     if( isConnected()){
+//       print('Connected!');
+//       client.subscribe(subTopic, MqttQos.atMostOnce);
+//       client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+//         final recMess = c![0].payload as MqttPublishMessage;
+//         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+//         // print('Received message: topic is ${c[0].topic}, payload is $pt');
+//       });
+
+//       client.published!.listen((MqttPublishMessage message) {
+//         print('Published topic: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
+//       });
+//     }else{
+//       print("Not connected!");
+//     }
+
 //   }
 
-//   const subTopic = 'HCrystalH/feeds/humidity';
-//   print('Subscribing to the $subTopic topic');
-//   client.subscribe(subTopic, MqttQos.atMostOnce);
-//   client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-//     final recMess = c![0].payload as MqttPublishMessage;
-//     final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-//     print('Received message: topic is ${c[0].topic}, payload is $pt');
-//   });
+//   void mqttPublish (String pubTopic, String data)  async{
+//     // const pubTopic = 'HCrystalH/feeds/humidity';
+//     await MqttUtilities.asyncSleep(2);
+//     if(isConnected()){
+//       print("connected to publish data");
+//       final builder = MqttClientPayloadBuilder();
+//       builder.addString(data);
 
-//   client.published!.listen((MqttPublishMessage message) {
-//     print('Published topic: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
-//   });
+//       print('Subscribing to the $pubTopic topic');
+//       client.subscribe(pubTopic, MqttQos.exactlyOnce);
 
-//   const pubTopic = 'HCrystalH/feeds/humidity';
-//   final builder = MqttClientPayloadBuilder();
-//   builder.addString('50');
+//       print('Publishing our topic');
+//       client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
+//     }else{ print("not connected to publish data");}
+//   }
 
-//   print('Subscribing to the $pubTopic topic');
-//   client.subscribe(pubTopic, MqttQos.exactlyOnce);
+//   void unSubscribe (String subTopic, String pubTopic)async {
+//     print('Sleeping....');
+//     await MqttUtilities.asyncSleep(80);
 
-//   print('Publishing our topic');
-//   client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
+//     print('Unsubscribing');
+//     client.unsubscribe(subTopic);
+//     client.unsubscribe(pubTopic);
 
-//   print('Sleeping....');
-//   await MqttUtilities.asyncSleep(80);
+//     await MqttUtilities.asyncSleep(2);
+//     print('Disconnecting');
+//     client.disconnect();
+//   }
+  
+//   bool isConnected(){
+//     return  client.connectionStatus!.state == MqttConnectionState.connected;
+//   }
+//   /// The subscribed callback
+//   void onSubscribed(String topic) {
+//     print('Subscription confirmed for topic $topic');
+//   }
 
-//   print('Unsubscribing');
-//   client.unsubscribe(subTopic);
-//   client.unsubscribe(pubTopic);
+//   // The successful connect callbacki
+//   void onConnected() {
+//     print('OnConnected client callback - Client connection was sucessful');
+//   }
 
-//   await MqttUtilities.asyncSleep(2);
-//   print('Disconnecting');
-//   client.disconnect();
-
-//   return 0;
-// }
-
-// /// The subscribed callback
-// void onSubscribed(String topic) {
-//   print('Subscription confirmed for topic $topic');
-// }
-
-// /// The unsolicited disconnect callback
-// void onDisconnected() {
-//   print('OnDisconnected client callback - Client disconnection');
-//   if (client.connectionStatus!.disconnectionOrigin ==
+//   /// Pong callback
+//   void pong() {
+//     print('Ping response client callback invoked');
+//   }
+//   void onDisconnected(){
+//     print("OnDisconnected client callback - Client disconnection");
+//      if (client.connectionStatus!.disconnectionOrigin ==
 //       MqttDisconnectionOrigin.solicited) {
-//     print('OnDisconnected callback is solicited, this is correct');
+//         print('OnDisconnected callback is solicited, this is correct');
+//     }
 //   }
-//   exit(-1);
-// }
-
-// /// The successful connect callback
-// void onConnected() {
-//   print('OnConnected client callback - Client connection was sucessful');
-// }
-
-// /// Pong callback
-// void pong() {
-//   print('Ping response client callback invoked');
+//   String getData() {
+     
+//     if(isConnected()){
+//       print("connected successfully to get data");
+//       String data ="";
+//       client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+//           final recMess = c![0].payload as MqttPublishMessage;
+//           final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+        
+//           data = '$pt';
+//           // print('Received message: topic is ${c[0].topic}, payload is $pt');
+//           // print('$pt');
+//         });
+//       return data;
+//     }else{
+//       return "not connected";
+//     }
+//   }
 // }
