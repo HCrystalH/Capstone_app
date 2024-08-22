@@ -31,10 +31,7 @@ class _UserScreenState extends State<UserScreen> {
         ,textAlign: TextAlign.center,
         style:  TextStyle(fontSize: 36,fontWeight: FontWeight.bold),
         ),
-        
-        actions: [
-
-        ],
+      
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-// import 'package:my_android_app/Screens/home_screen.dart';
+import 'package:my_android_app/Screens/home_screen.dart';
 import 'package:my_android_app/Widget/snack_bar.dart';
-// import 'package:my_android_app/Home/home_screen.dart';
 import '../Authentication/auth.dart';
 import 'signup.dart';
 import '../Widget/text_field.dart';
 import '../Widget/button.dart';
 import '../Authentication/google_auth.dart';
 import '../Authentication/forgot_password.dart';
-import '../Authentication/phoneLogin/phone_auth.dart';
-import 'package:my_android_app/Widget/navigation_bar.dart';
+
 String email = '';
 
 @immutable
@@ -36,7 +34,8 @@ class _LoginPageState extends State<LoginPage> {
   // var _emailInvalid = false;
   // var _passInvalid = false;
 
-  final AuthService _auth = AuthService();
+  // final AuthService _auth = AuthService();
+
   /* Declared Variables END */
 
   // Email and password authencation part
@@ -54,10 +53,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isLoading = false;
       });
+      
       // Navigate user to home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const NavBar(),
+          builder: (context) => const HomeScreen(),
         ),
       );
     } else {
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>  const NavBar(),
+                      builder: (context) =>  const HomeScreen(),
                     ),
                   );
                 },

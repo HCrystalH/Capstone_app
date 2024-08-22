@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import '../Widget/button.dart';
-// import '../Authentication/auth.dart';
+import '../Authentication/auth.dart';
+import '../Authentication/google_auth.dart';
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -10,12 +11,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreen extends State<SettingsScreen> {
-  // final AuthService _auth = AuthService();
+  final AuthService _user = AuthService();
+  final FirebaseServices _googleUser = FirebaseServices();
   bool isLoading = false;
   void logout() async{
      setState(() {
       isLoading = true;
     });
+    _user.logOut();
+    _googleUser.googleSignOut();
     
       // Navigate user to home screen
       Navigator.of(context).pushReplacement(
@@ -43,4 +47,6 @@ class _SettingsScreen extends State<SettingsScreen> {
        
     );
   }
+
+  
 }
