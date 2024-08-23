@@ -2,10 +2,10 @@
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 // key = aio_Urvv98tocEDOmtPAMqsPnWt6onBo
- /*If cannot use log => debugdebugPrint instead*/ 
+ /*If cannot use log => debugprint instead*/ 
 
 class MqttHelper {
   final String _serverAddress;  // for example : io.adafruit.com
@@ -44,49 +44,55 @@ class MqttHelper {
     client.connectionMessage = connMess;
 
     try {
-      debugPrint("Connecting....");
+      print("Connecting....");
       client.keepAlivePeriod = 60;
       await client.connect();
       
     } on NoConnectionException catch (e) {
-      debugPrint('Client exception: $e');
+      print('Client exception: $e');
       client.disconnect();
     }
 
     if (isConnected()) {
-      debugPrint('Adafruit connected');
+      print('Adafruit connected');
     } else {
-      debugPrint('Client connection failed - disconnecting, status is ${client.connectionStatus}');
+      print('Client connection failed - disconnecting, status is ${client.connectionStatus}');
       client.disconnect();
     }
   }
 /// The pre auto re connect callback
 void onAutoReconnect() {
-  debugPrint('Client auto reconnection sequence will start');
+  print('Client auto reconnection sequence will start');
 }
 
 /// The post auto re connect callback
 void onAutoReconnected() {
-  debugPrint('Client auto reconnection sequence has completed');
+  print('Client auto reconnection sequence has completed');
 }
   void mqttSubscribe(String subTopic) async{
     //  const subTopic = 'HCrystalH/feeds/humidity';
-    debugPrint('Subscribing to the $subTopic topic');
+    print('Subscribing to the $subTopic topic');
     await MqttUtilities.asyncSleep(1);
     if( isConnected()){
-      debugPrint('Connected! to Subscribe');
+      print('Connected! to Subscribe');
       client.subscribe(subTopic, MqttQos.atMostOnce);
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
         final recMess = c![0].payload as MqttPublishMessage;
         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-        debugPrint('Received message: topic is ${c[0].topic}, payload is $pt');
+        print('Received message: topic is ${c[0].topic}, payload is $pt');
       });
 
       client.published!.listen((MqttPublishMessage message) {
-        debugPrint('Published topic: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
+        print('Published topic: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
       });
+      // client.onMessage = (topic,message){
+      //   final recMess = message.payload as MqttPublishMessage;
+      //   final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+
+      //   print('Received message: topic is $topic, payload is $pt');
+      // }
     }else{
-      debugPrint("Not connected! to Subscribe feed");
+      print("Not connected! to Subscribe feed");
     }
 
   }
@@ -95,28 +101,28 @@ void onAutoReconnected() {
     // const pubTopic = 'HCrystalH/feeds/humidity';
     await MqttUtilities.asyncSleep(2);
     if(isConnected()){
-      debugPrint("connected to publish data");
+      print("connected to publish data");
       final builder = MqttClientPayloadBuilder();
       builder.addString(data);
 
-      debugPrint('Subscribing to the $pubTopic topic');
+      print('Subscribing to the $pubTopic topic');
       client.subscribe(pubTopic, MqttQos.exactlyOnce);
 
-      debugPrint('Publishing our topic');
+      print('Publishing our topic');
       client.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
-    }else{ debugPrint("not connected to publish data");}
+    }else{ print("not connected to publish data");}
   }
 
   void unSubscribe (String subTopic, String pubTopic)async {
-    debugPrint('Sleeping....');
+    print('Sleeping....');
     await MqttUtilities.asyncSleep(80);
 
-    debugPrint('Unsubscribing');
+    print('Unsubscribing');
     client.unsubscribe(subTopic);
     client.unsubscribe(pubTopic);
 
     await MqttUtilities.asyncSleep(2);
-    debugPrint('Disconnecting');
+    print('Disconnecting');
     client.disconnect();
   }
   
@@ -125,41 +131,50 @@ void onAutoReconnected() {
   }
   /// The subscribed callback
   void onSubscribed(String topic) {
-    debugPrint('Subscription confirmed for topic $topic');
+    print('Subscription confirmed for topic $topic');
   }
 
   // The successful connect callbacki
   void onConnected() {
-    debugPrint('OnConnected client callback - Client connection was sucessful');
+    print('OnConnected client callback - Client connection was sucessful');
   }
 
   /// Pong callback
   void pong() {
-    debugPrint('Ping response client callback invoked');
+    print('Ping response client callback invoked');
   }
   void onDisconnected(){
-    debugPrint("OnDisconnected client callback - Client disconnection");
+    print("OnDisconnected client callback - Client disconnection");
      if (client.connectionStatus!.disconnectionOrigin ==
       MqttDisconnectionOrigin.solicited) {
-        debugPrint('OnDisconnected callback is solicited, this is correct');
+        print('OnDisconnected callback is solicited, this is correct');
     }
   }
-  String getData() {
+  void getData() {
      
     if(isConnected()){
-      debugPrint("connected successfully to get data");
+      // print("connected successfully to get data");
       String data ="";
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
           final recMess = c![0].payload as MqttPublishMessage;
           final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
         
           data = pt;
-          // debugPrint('Received message: topic is ${c[0].topic}, payload is $pt');
-          // debugPrint('$pt');
+          // print('Received message: topic is ${c[0].topic}, payload is $pt');
+          // print('$pt');
         });
-      return data;
-    }else{
-      return "not connected";
+      
     }
   }
+
+ 
 }
+
+// void main()async{
+//   MqttHelper user = MqttHelper(serverAddress: 'io.adafruit.com', userName: 'HVVH', userKey: 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo');
+
+//   user.mqttConnect();
+//   user.mqttSubscribe('HVVH/feeds/data');
+//   await MqttUtilities.asyncSleep(1);
+    
+// }

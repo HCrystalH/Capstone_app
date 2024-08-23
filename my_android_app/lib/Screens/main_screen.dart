@@ -1,24 +1,26 @@
 // import '../services/mqtt_service.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
 import '../services/mqtt_service.dart';
 class MainScreen extends StatefulWidget{
-  const MainScreen({super.key});
+   const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen>{
-  
-  bool buttonRelay1 = false;
-  bool buttonRelay2 = true;
-  bool buttonRelay3 = true;
-  bool buttonRelay4 = false;
+  late AnimationController _animationController;
+  bool buttonRelay1= false;
+  bool buttonRelay2= false;
+  bool buttonRelay3=false;
+  bool buttonRelay4=false;
   // Hard code
   String server = 'io.adafruit.com';
   String username = 'HVVH';
@@ -30,34 +32,99 @@ class _MainScreenState extends State<MainScreen>{
   String humidData ='';
   String tempData ='';
   String energyData ='';
-  
+  Timer? timer;
   @override
   void initState() {
     super.initState();
+   
+    /*The first call to display previous values*/
     fetchData("data").then((data) => setState( (){
       values = data.split(",");
       humidData = values[0];
       energyData = values[1];
       tempData = values[2];
-    }
+      }
     ));
-    
-    fetchAllRelayData(buttonRelay1, 'relay1');
-    fetchAllRelayData(buttonRelay2, 'relay2');
-    fetchAllRelayData(buttonRelay3, 'relay3');
-    fetchAllRelayData(buttonRelay4, 'relay4');
+    fetchData("relay1").then((value) => setState(() {
+      if(value =="0"){  buttonRelay1 = false;
+      }else{  buttonRelay1 = true;}
+    }));
+    fetchData("relay2").then((value) => setState(() {
+      if(value =="0"){  buttonRelay2 = false;
+      }else{  buttonRelay2 = true;}
+    }));
+    fetchData("relay3").then((value) => setState(() {
+      if(value =="0"){  buttonRelay3 = false;
+      }else{  buttonRelay3 = true;}
+    }));
+    fetchData("relay4").then((value) => setState(() {
+      if(value =="0"){  buttonRelay4 = false;
+      }else{  buttonRelay4 = true;}
+    }));
+    /*** First display END HERE***/
 
+    /*Periodic call to update feeds values*/ 
+    
+    Timer.periodic(const Duration(seconds: 60), (timer) {
+      fetchData("data").then((data) => setState( (){
+      values = data.split(",");
+      humidData = values[0];
+      energyData = values[1];
+      tempData = values[2];
+      }
+      ));
+    });
+    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      fetchData("relay1").then((value) => setState(() {
+      if(value =="0"){  buttonRelay1 = false;
+      }else{  buttonRelay1 = true;}
+    }));
+    });
+    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      fetchData("relay2").then((value) => setState(() {
+      if(value =="0"){  buttonRelay2 = false;
+      }else{  buttonRelay2 = true;}
+    }));
+    });
+    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      fetchData("relay3").then((value) => setState(() {
+      if(value =="0"){  buttonRelay3 = false;
+      }else{  buttonRelay3 = true;}
+    }));
+    });
+    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      fetchData("relay4").then((value) => setState(() {
+      if(value =="0"){  buttonRelay4 = false;
+      }else{  buttonRelay4 = true;}
+    }));
+    });
+    
+    /*Periodic call to update feeds values END HERE*/ 
+
+    
     user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
     user!.mqttConnect();
     user!.mqttSubscribe('$username/feeds/relay1');
     user!.mqttSubscribe('$username/feeds/relay2');
     user!.mqttSubscribe('$username/feeds/relay3');
     user!.mqttSubscribe('$username/feeds/relay4');
+    
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context){
-    return SingleChildScrollView(
+
+    // return AnimatedBuilder(
+    //   animation: _animationController, 
+    //   builder: (context,child)
+    // {
+      return SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child:SizedBox(
           
@@ -110,19 +177,19 @@ class _MainScreenState extends State<MainScreen>{
 
                 Row(children: [
                   
-                  functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue, buttonRelay1), 
-
+                  
+                  functionCard(context,"Smart Lightning","Bedroom \n $buttonRelay1 ",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
                   const SizedBox(width: 10),
-                  functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243),buttonRelay2),
+                  functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
                 
                 ],),
 
                 SizedBox(height:  MediaQuery.sizeOf(context).height/30),
                 Row(children: [
-                  functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white,buttonRelay3), 
+                  functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white), 
 
                   const SizedBox(width: 10),
-                  functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125),buttonRelay4),
+                  functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
                 
                 ],), 
             
@@ -135,12 +202,39 @@ class _MainScreenState extends State<MainScreen>{
       )
       
     );
+    // );
   }
-  Container functionCard(BuildContext context, content, room,String feedName, IconData icon,  Color iconColor, Color backgroundColor, bool isSwitch){
+
+  
+
+  Container functionCard(BuildContext context, content, room,String feedName, IconData icon,  Color iconColor, Color backgroundColor) {
+    Switch switchName = relay1();
     Color textColor = Colors.white;
     if(room =="Living Room"|| room == "Kitchen"){
       textColor = Colors.black;
     }
+    if(feedName == 'relay1'){
+      switchName = relay1();
+    }else if(feedName == 'relay2'){
+      switchName = relay2();
+    }else if(feedName == 'relay3'){
+      switchName = relay3();
+    }else if(feedName == 'relay4'){
+      switchName = relay4();
+    }
+    // user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+    //   final recMess = c![0].payload as MqttPublishMessage;
+    //   final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    //   if(pt =="0"){
+    //     print("pt = 0");
+    //     setState(() => isSwitch = false);
+    //   }
+    //   else {
+    //     print("pt = 1");
+    //     setState(() => isSwitch = true);
+    //   }
+    //     print('Received message: topic is ${c[0].topic}, payload is $pt');
+    // }); 
     return  Container(
       // width: MediaQuery.sizeOf(context).width/4, // Adjust width as needed
       // height: MediaQuery.sizeOf(context).height/4, // Adjust height as needed
@@ -196,35 +290,43 @@ class _MainScreenState extends State<MainScreen>{
                   color: textColor,
                 ),
               ),
-            LiteRollingSwitch(
-              width: 100,
-              onTap: () async{
-                debugPrint("Tap to upload data");
-                await MqttUtilities.asyncSleep(1);
-                if(isSwitch == false){
-                  user!.mqttPublish('$username/feeds/$feedName', '0');
-                }else {user!.mqttPublish('$username/feeds/$feedName', '1');}
-              },
-              onDoubleTap: (){},
-              onSwipe: (){},
-              value: isSwitch,
-              textOn: "ON",
-              textOff: "OFF",
-              colorOn: Colors.greenAccent,
-              colorOff: Colors.redAccent,
-              iconOn: Icons.done,
-              iconOff: Icons.alarm_off,
-              textSize: 14,
-              onChanged: (bool position) async{
-                isSwitch = position;
-              }
-            ),
-           
+              switchName,
+            // LiteRollingSwitch(
+            //   width: 100,
+            //   onTap: () async{
+            //     debugPrint("Tap to upload data");
+            //     await MqttUtilities.asyncSleep(1);
+            //     if(isSwitch == false){
+            //       user!.mqttPublish('$username/feeds/$feedName', '0');
+            //     }else {user!.mqttPublish('$username/feeds/$feedName', '1');}
+            //   },
+            //   onDoubleTap: (){},
+            //   onSwipe: (){},
+            //   value: isSwitch? true:false,
+            //   textOn: "ON",
+            //   textOff: "OFF",
+            //   colorOn: Colors.greenAccent,
+            //   colorOff: Colors.redAccent,
+            //   iconOn: Icons.done,
+            //   iconOff: Icons.alarm_off,
+            //   textSize: 14,
+            //   onChanged: (bool value){
+            //     setState(() {
+            //       isSwitch = value;   
+            //     });
+               
+                
+            //   }
+              
+            // ),
+
+            
             ],
           ),
         ],
       ),
     ),
+    
   );
   } 
 
@@ -257,6 +359,81 @@ class _MainScreenState extends State<MainScreen>{
     );
 }
 
+  Switch relay1(){
+    return Switch.adaptive(
+      value: buttonRelay1, 
+      onChanged: (bool value) async {
+        await MqttUtilities.asyncSleep(1);
+       
+
+        setState(() {
+          buttonRelay1 = value;
+          if(buttonRelay1 == false){
+          user!.mqttPublish('$username/feeds/relay1', '0');
+        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
+        });
+      },
+      activeColor: Colors.white,
+      activeTrackColor: Colors.green,
+      inactiveTrackColor: Colors.redAccent ,
+      inactiveThumbColor: Colors.white,
+    );
+  }
+  Switch relay2(){
+    return Switch.adaptive(
+      value: buttonRelay2, 
+      onChanged: (bool value) async{
+         await MqttUtilities.asyncSleep(1);
+        if(buttonRelay1 == false){
+          user!.mqttPublish('$username/feeds/relay2', '0');
+        }else {user!.mqttPublish('$username/feeds/relay2', '1');}
+        setState(() {
+          buttonRelay2 = value;
+        });
+      },
+      activeColor: Colors.white,
+      activeTrackColor: Colors.green,
+      inactiveTrackColor: Colors.redAccent ,
+      inactiveThumbColor: Colors.white,
+    );
+  }
+  Switch relay3(){
+    return Switch.adaptive(
+      value: buttonRelay3, 
+      onChanged: (bool value) async {
+        await MqttUtilities.asyncSleep(1);
+        if(buttonRelay1 == false){
+          user!.mqttPublish('$username/feeds/relay1', '0');
+        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
+        setState(() {
+          buttonRelay3 = value;
+        });
+      },
+      activeColor: Colors.white,
+      activeTrackColor: Colors.green,
+      inactiveTrackColor: Colors.redAccent ,
+      inactiveThumbColor: Colors.white,
+    );
+  }
+  Switch relay4(){
+    return Switch.adaptive(
+      value: buttonRelay4, 
+      onChanged: (bool value) async{
+        await MqttUtilities.asyncSleep(1);
+        if(buttonRelay1 == false){
+          user!.mqttPublish('$username/feeds/relay4', '0');
+        }else {user!.mqttPublish('$username/feeds/relay4', '1');}
+        setState(() {
+          buttonRelay4 = value;
+        });
+      },
+      activeColor: Colors.white,
+      activeTrackColor: Colors.green,
+      inactiveTrackColor: Colors.redAccent ,
+      inactiveThumbColor: Colors.white,
+    );
+  }
+
   Future<String> fetchData(String feedName) async{
     final String url = 'https://io.adafruit.com/api/v2/HVVH/feeds/$feedName';
     final headers ={
@@ -264,10 +441,10 @@ class _MainScreenState extends State<MainScreen>{
     };
 
     try{
-      debugPrint("Before post");
+      // debugPrint("Before post");
       final response = await https.get(Uri.parse(url),headers: headers);
       if(response.statusCode == 200){
-        debugPrint("GETTING");
+        // debugPrint("GETTING");
         final json =jsonDecode(response.body);
         String data = json['last_value'];
         debugPrint(data.toString());
@@ -279,17 +456,7 @@ class _MainScreenState extends State<MainScreen>{
     }
     return "Failed to fetch Data";
   }
-
-  void fetchAllRelayData(bool buttonControl, String feedName){
-    fetchData(feedName).then((data) => setState( (){
-      if(data =="0"){
-        debugPrint("check condition");
-        buttonControl =false;
-        }
-      else{ buttonControl =true;}
-    }
-    ));
-    debugPrint("$feedName  has button Control relay is: $buttonControl");
-  }
+   
+ 
 }
 

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/home_screen.dart';
+// import 'package:my_android_app/Screens/main_screen.dart';
 
 
 void main() async {
