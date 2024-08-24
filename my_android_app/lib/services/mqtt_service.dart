@@ -72,7 +72,7 @@ void onAutoReconnected() {
   void mqttSubscribe(String subTopic) async{
     //  const subTopic = 'HCrystalH/feeds/humidity';
     print('Subscribing to the $subTopic topic');
-    await MqttUtilities.asyncSleep(1);
+    await MqttUtilities.asyncSleep(2);
     if( isConnected()){
       print('Connected! to Subscribe');
       client.subscribe(subTopic, MqttQos.atMostOnce);

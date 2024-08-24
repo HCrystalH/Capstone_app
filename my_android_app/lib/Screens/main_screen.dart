@@ -65,49 +65,74 @@ class _MainScreenState extends State<MainScreen>{
 
     /*Periodic call to update feeds values*/ 
     
-    Timer.periodic(const Duration(seconds: 60), (timer) {
-      fetchData("data").then((data) => setState( (){
-      values = data.split(",");
-      humidData = values[0];
-      energyData = values[1];
-      tempData = values[2];
-      }
-      ));
-    });
-    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      fetchData("relay1").then((value) => setState(() {
-      if(value =="0"){  buttonRelay1 = false;
-      }else{  buttonRelay1 = true;}
-    }));
-    });
-    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      fetchData("relay2").then((value) => setState(() {
-      if(value =="0"){  buttonRelay2 = false;
-      }else{  buttonRelay2 = true;}
-    }));
-    });
-    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      fetchData("relay3").then((value) => setState(() {
-      if(value =="0"){  buttonRelay3 = false;
-      }else{  buttonRelay3 = true;}
-    }));
-    });
-    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-      fetchData("relay4").then((value) => setState(() {
-      if(value =="0"){  buttonRelay4 = false;
-      }else{  buttonRelay4 = true;}
-    }));
-    });
+    // Timer.periodic(const Duration(seconds: 1), (timer) {
+    //   fetchData("data").then((data) => setState( (){
+    //   values = data.split(",");
+    //   humidData = values[0];
+    //   energyData = values[1];
+    //   tempData = values[2];
+    //   }
+    //   ));
+    // });
+    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    //   fetchData("relay1").then((value) => setState(() {
+    //   if(value =="0"){  buttonRelay1 = false;
+    //   }else{  buttonRelay1 = true;}
+    // }));
+    // });
+    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    //   fetchData("relay2").then((value) => setState(() {
+    //   if(value =="0"){  buttonRelay2 = false;
+    //   }else{  buttonRelay2 = true;}
+    // }));
+    // });
+    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    //   fetchData("relay3").then((value) => setState(() {
+    //   if(value =="0"){  buttonRelay3 = false;
+    //   }else{  buttonRelay3 = true;}
+    // }));
+    // });
+    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    //   fetchData("relay4").then((value) => setState(() {
+    //   if(value =="0"){  buttonRelay4 = false;
+    //   }else{  buttonRelay4 = true;}
+    // }));
+    // });
     
     /*Periodic call to update feeds values END HERE*/ 
+    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+    // user!.mqttConnect();
+    // user!.mqttSubscribe('$username/feeds/relay1');
+    // user!.mqttSubscribe('$username/feeds/relay2');
+    // user!.mqttSubscribe('$username/feeds/relay3');
+    // user!.mqttSubscribe('$username/feeds/relay4');
 
+    // Timer.periodic(const Duration(microseconds: 500), (timer){
+    //   user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+    //     final recMess = c![0].payload as MqttPublishMessage;
+    //     final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    //     print(recMess);
+
+          
+    //     if(c[0].topic=='$username/feeds/relay1'){
+    //       if(pt == '0' && buttonRelay1 != false){setState(() => buttonRelay1 = false);}
+    //       else if(pt == '1' && buttonRelay1 != true){setState(() => buttonRelay1 = true);}
+    //     }
+    //     else if(c[0].topic=='$username/feeds/relay2'){
+    //       if(pt == '0' && buttonRelay2 != false){setState(() => buttonRelay2 = false);}
+    //       else if(pt == '1' && buttonRelay2 != true){setState(() => buttonRelay2 = true);}
+    //     }
+    //     else if(c[0].topic=='$username/feeds/relay3'){
+    //       if(pt == '0' && buttonRelay3 != false){setState(() => buttonRelay3 = false);}
+    //       else if(pt == '1' && buttonRelay3 != true){setState(() => buttonRelay3 = true);}
+    //     }
+    //     else if(c[0].topic=='$username/feeds/relay4'){
+    //       if(pt == '0' && buttonRelay4 != false){setState(() => buttonRelay4 = false);}
+    //       else if(pt == '1' && buttonRelay4 != true){setState(() => buttonRelay4 = true);}
+    //     }
+    //   }); 
+    // });
     
-    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    user!.mqttConnect();
-    user!.mqttSubscribe('$username/feeds/relay1');
-    user!.mqttSubscribe('$username/feeds/relay2');
-    user!.mqttSubscribe('$username/feeds/relay3');
-    user!.mqttSubscribe('$username/feeds/relay4');
     
   }
 
@@ -139,22 +164,56 @@ class _MainScreenState extends State<MainScreen>{
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                  padding:const EdgeInsets.only(left: 20,right: 25),
-                  child:  Row(
+                // Container(
+                //   decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
+                //   padding:const EdgeInsets.only(left: 20,right: 25),
+                //   child:  Row(
                   
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Motion card
-                    dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
-                    // Energy card
-                    dataCard("Energy", "$energyData kWh",const Icon(Icons.bolt)),
-                    // Temperature card
-                    dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
-                  ],
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                   
+                //     // Motion card
+                //     dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
+                //     // Energy card
+                //     dataCard("Energy", "$energyData kWh",const Icon(Icons.bolt)),
+                //     // Temperature card
+                //     dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
+                //   ],
+                // ),
+                
+                // ),
+
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
+                    padding:const EdgeInsets.only(left: 20,right: 35),
+                    child:  
+                    Row(
+                      
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                    
+                        // Motion card
+                        dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
+                        const SizedBox(width: 10,),
+                        // Energy card
+                        dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
+                        const SizedBox(width: 10,),
+                        // Temperature card
+                        dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
+                        const SizedBox(width: 10,),
+                        // Voltage card
+                        dataCard("Voltage", "$tempData V",const Icon(Icons.bolt)),
+                        const SizedBox(width: 10,),
+                        // Current card
+                        dataCard("Current", "$tempData A",const Icon(Icons.amp_stories)),
+                      ],
+                    ),
+                  ),
                 ),
-                ),
+
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Padding(
@@ -222,23 +281,9 @@ class _MainScreenState extends State<MainScreen>{
     }else if(feedName == 'relay4'){
       switchName = relay4();
     }
-    // user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-    //   final recMess = c![0].payload as MqttPublishMessage;
-    //   final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    //   if(pt =="0"){
-    //     print("pt = 0");
-    //     setState(() => isSwitch = false);
-    //   }
-    //   else {
-    //     print("pt = 1");
-    //     setState(() => isSwitch = true);
-    //   }
-    //     print('Received message: topic is ${c[0].topic}, payload is $pt');
-    // }); 
     return  Container(
       // width: MediaQuery.sizeOf(context).width/4, // Adjust width as needed
       // height: MediaQuery.sizeOf(context).height/4, // Adjust height as needed
-      
       width: 190,
       height: 250,
       decoration: BoxDecoration(
@@ -291,35 +336,7 @@ class _MainScreenState extends State<MainScreen>{
                 ),
               ),
               switchName,
-            // LiteRollingSwitch(
-            //   width: 100,
-            //   onTap: () async{
-            //     debugPrint("Tap to upload data");
-            //     await MqttUtilities.asyncSleep(1);
-            //     if(isSwitch == false){
-            //       user!.mqttPublish('$username/feeds/$feedName', '0');
-            //     }else {user!.mqttPublish('$username/feeds/$feedName', '1');}
-            //   },
-            //   onDoubleTap: (){},
-            //   onSwipe: (){},
-            //   value: isSwitch? true:false,
-            //   textOn: "ON",
-            //   textOff: "OFF",
-            //   colorOn: Colors.greenAccent,
-            //   colorOff: Colors.redAccent,
-            //   iconOn: Icons.done,
-            //   iconOff: Icons.alarm_off,
-            //   textSize: 14,
-            //   onChanged: (bool value){
-            //     setState(() {
-            //       isSwitch = value;   
-            //     });
-               
-                
-            //   }
-              
-            // ),
-
+          
             
             ],
           ),
@@ -340,7 +357,10 @@ class _MainScreenState extends State<MainScreen>{
               Column(
                 children:[
               Text(name),
-              Text(data),
+              Text(data,
+              style: const TextStyle(
+                color: Color.fromARGB(255, 12, 219, 67),
+              ),),
                 ]
               )
             ],
@@ -363,11 +383,10 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay1, 
       onChanged: (bool value) async {
+        buttonRelay1 = value;
         await MqttUtilities.asyncSleep(1);
-       
-
         setState(() {
-          buttonRelay1 = value;
+          // buttonRelay1 = value;
           if(buttonRelay1 == false){
           user!.mqttPublish('$username/feeds/relay1', '0');
         }else {user!.mqttPublish('$username/feeds/relay1', '1');}
