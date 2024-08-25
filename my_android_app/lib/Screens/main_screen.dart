@@ -111,7 +111,7 @@ class _MainScreenState extends State<MainScreen>{
       user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
         final recMess = c![0].payload as MqttPublishMessage;
         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-        // print(recMess);          
+                 
         if(c[0].topic=='$username/feeds/relay1'){
           if(pt == '0' && buttonRelay1 != false){setState(() => buttonRelay1 = false);}
           else if(pt == '1' && buttonRelay1 != true){setState(() => buttonRelay1 = true);}
