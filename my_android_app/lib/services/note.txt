@@ -1,0 +1,1 @@
+Testing query, fetch, and publish data to firebase db
