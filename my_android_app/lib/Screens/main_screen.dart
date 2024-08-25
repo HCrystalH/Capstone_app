@@ -65,15 +65,15 @@ class _MainScreenState extends State<MainScreen>{
 
     /*Periodic call to update feeds values*/ 
     
-    // Timer.periodic(const Duration(seconds: 1), (timer) {
-    //   fetchData("data").then((data) => setState( (){
-    //   values = data.split(",");
-    //   humidData = values[0];
-    //   energyData = values[1];
-    //   tempData = values[2];
-    //   }
-    //   ));
-    // });
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      fetchData("data").then((data) => setState( (){
+      values = data.split(",");
+      humidData = values[0];
+      energyData = values[1];
+      tempData = values[2];
+      }
+      ));
+    });
     // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
     //   fetchData("relay1").then((value) => setState(() {
     //   if(value =="0"){  buttonRelay1 = false;
@@ -100,38 +100,36 @@ class _MainScreenState extends State<MainScreen>{
     // });
     
     /*Periodic call to update feeds values END HERE*/ 
-    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    // user!.mqttConnect();
-    // user!.mqttSubscribe('$username/feeds/relay1');
-    // user!.mqttSubscribe('$username/feeds/relay2');
-    // user!.mqttSubscribe('$username/feeds/relay3');
-    // user!.mqttSubscribe('$username/feeds/relay4');
+    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+    user!.mqttConnect();
+    user!.mqttSubscribe('$username/feeds/relay1');
+    user!.mqttSubscribe('$username/feeds/relay2');
+    user!.mqttSubscribe('$username/feeds/relay3');
+    user!.mqttSubscribe('$username/feeds/relay4');
 
-    // Timer.periodic(const Duration(microseconds: 500), (timer){
-    //   user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-    //     final recMess = c![0].payload as MqttPublishMessage;
-    //     final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    //     print(recMess);
-
-          
-    //     if(c[0].topic=='$username/feeds/relay1'){
-    //       if(pt == '0' && buttonRelay1 != false){setState(() => buttonRelay1 = false);}
-    //       else if(pt == '1' && buttonRelay1 != true){setState(() => buttonRelay1 = true);}
-    //     }
-    //     else if(c[0].topic=='$username/feeds/relay2'){
-    //       if(pt == '0' && buttonRelay2 != false){setState(() => buttonRelay2 = false);}
-    //       else if(pt == '1' && buttonRelay2 != true){setState(() => buttonRelay2 = true);}
-    //     }
-    //     else if(c[0].topic=='$username/feeds/relay3'){
-    //       if(pt == '0' && buttonRelay3 != false){setState(() => buttonRelay3 = false);}
-    //       else if(pt == '1' && buttonRelay3 != true){setState(() => buttonRelay3 = true);}
-    //     }
-    //     else if(c[0].topic=='$username/feeds/relay4'){
-    //       if(pt == '0' && buttonRelay4 != false){setState(() => buttonRelay4 = false);}
-    //       else if(pt == '1' && buttonRelay4 != true){setState(() => buttonRelay4 = true);}
-    //     }
-    //   }); 
-    // });
+    Timer.periodic(const Duration(microseconds: 500), (timer){
+      user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+        final recMess = c![0].payload as MqttPublishMessage;
+        final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+        // print(recMess);          
+        if(c[0].topic=='$username/feeds/relay1'){
+          if(pt == '0' && buttonRelay1 != false){setState(() => buttonRelay1 = false);}
+          else if(pt == '1' && buttonRelay1 != true){setState(() => buttonRelay1 = true);}
+        }
+        else if(c[0].topic=='$username/feeds/relay2'){
+          if(pt == '0' && buttonRelay2 != false){setState(() => buttonRelay2 = false);}
+          else if(pt == '1' && buttonRelay2 != true){setState(() => buttonRelay2 = true);}
+        }
+        else if(c[0].topic=='$username/feeds/relay3'){
+          if(pt == '0' && buttonRelay3 != false){setState(() => buttonRelay3 = false);}
+          else if(pt == '1' && buttonRelay3 != true){setState(() => buttonRelay3 = true);}
+        }
+        else if(c[0].topic=='$username/feeds/relay4'){
+          if(pt == '0' && buttonRelay4 != false){setState(() => buttonRelay4 = false);}
+          else if(pt == '1' && buttonRelay4 != true){setState(() => buttonRelay4 = true);}
+        }
+      }); 
+    });
     
     
   }
@@ -384,7 +382,7 @@ class _MainScreenState extends State<MainScreen>{
       value: buttonRelay1, 
       onChanged: (bool value) async {
         buttonRelay1 = value;
-        await MqttUtilities.asyncSleep(1);
+        // await MqttUtilities.asyncSleep(1);
         setState(() {
           // buttonRelay1 = value;
           if(buttonRelay1 == false){
@@ -402,8 +400,11 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay2, 
       onChanged: (bool value) async{
+        setState(() {
+          buttonRelay2 = value;
+        });
          await MqttUtilities.asyncSleep(1);
-        if(buttonRelay1 == false){
+        if(buttonRelay2 == false){
           user!.mqttPublish('$username/feeds/relay2', '0');
         }else {user!.mqttPublish('$username/feeds/relay2', '1');}
         setState(() {
@@ -420,13 +421,14 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay3, 
       onChanged: (bool value) async {
-        await MqttUtilities.asyncSleep(1);
-        if(buttonRelay1 == false){
-          user!.mqttPublish('$username/feeds/relay1', '0');
-        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
         setState(() {
           buttonRelay3 = value;
         });
+        await MqttUtilities.asyncSleep(1);
+        if(buttonRelay3 == false){
+          user!.mqttPublish('$username/feeds/relay1', '0');
+        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
+       
       },
       activeColor: Colors.white,
       activeTrackColor: Colors.green,
@@ -438,13 +440,14 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay4, 
       onChanged: (bool value) async{
-        await MqttUtilities.asyncSleep(1);
-        if(buttonRelay1 == false){
-          user!.mqttPublish('$username/feeds/relay4', '0');
-        }else {user!.mqttPublish('$username/feeds/relay4', '1');}
         setState(() {
           buttonRelay4 = value;
         });
+        await MqttUtilities.asyncSleep(1);
+        if(buttonRelay4 == false){
+          user!.mqttPublish('$username/feeds/relay4', '0');
+        }else {user!.mqttPublish('$username/feeds/relay4', '1');}
+       
       },
       activeColor: Colors.white,
       activeTrackColor: Colors.green,
