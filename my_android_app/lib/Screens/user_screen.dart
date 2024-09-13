@@ -1,8 +1,13 @@
+
+
+import 'dart:ffi';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:my_android_app/Screens/home_screen.dart';
-
-
-
+// import 'package:my_android_app/Screens/home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../Authentication/auth.dart';
+// import 'package:provider/provider.dart';
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
 
@@ -11,21 +16,30 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  bool isSwitch = false;
- 
+  final CollectionReference _items = FirebaseFirestore.instance.collection('users');
+  TextEditingController userName = TextEditingController();
+  String? gotEmail,gotUserPassword;
+  String gotUserName ="";
+  bool flagChange = true;
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+  }
+
+  @override
+  void initState() {
+    
+    super.initState();
+    getUserInfor('dzMsIGjedqeqtBRgC7ZiBc6mXT42',gotEmail);
+    updateUser('dzMsIGjedqeqtBRgC7ZiBc6mXT42',false);
+    // debugPrint("Hello World!");
+  }
   // final CarouselController controller = CarouselController(initialItem: 1);
   @override
    Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        leading: IconButton(
-          icon:const  Icon(Icons.arrow_back,color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const HomeScreen()));
-          }
-        ),
         centerTitle: true,
         title: const Text('Edit Profile'
         ,textAlign: TextAlign.center,
@@ -33,48 +47,62 @@ class _UserScreenState extends State<UserScreen> {
         ),
       
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
+      body: StreamBuilder(
+        stream: _items.snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot){
+        // padding: const EdgeInsets.all(16.0),
+        if(streamSnapshot.hasData){
+          
+          
+        return Padding(
+          padding:const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+              
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Melissa Peters',
+                controller: userName,
+                onTapOutside: (event) => nullptr,
+                decoration:  InputDecoration(
+                  hintText: gotUserName,
+                  labelText: gotUserName,
+          
                 ),
+                onSaved: (newValue) {
+                  
+                },
               ),
-              SizedBox(height: 16),
-              Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'melpeters@gmail.com',
-                ),
-              ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+              Text("$gotEmail", style: TextStyle(fontWeight: FontWeight.bold)),
+              // TextFormField(
+              //   decoration: const InputDecoration(
+              //     hintText: 'melpeters@gmail.com',
+              //     labelText: 'Email',
+              //   ),
+              // ),
+              const SizedBox(height: 16),
               Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: 'Enter password', 
+                  hintText: '$gotUserPassword', 
 
                 ),
               ),
-              SizedBox(height: 16),
-              Text('Date of Birth', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              const Text('Date of Birth', style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
                 decoration: InputDecoration(
                   hintText: '23/05/1995',
                 ),
               ),
               SizedBox(height: 16),
-              Text('Country/Region', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Country/Region', style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
                 decoration: InputDecoration(
                   hintText: 'Nigeria',
                 ),
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
                   // Handle save changes logic
@@ -83,8 +111,79 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ],
           ),
-        ),
+        );
+        }
+        return const Center(
+          child:CircularProgressIndicator(),
+        );
+        }
       ),
     );
   }
+
+
+
+Future<void> getUserInfor(String uid,dynamic input) async{
+   
+  final querySnapshot = await _items.where('uid', isEqualTo: uid).get();
+  if(mounted == true){
+     
+    DocumentReference data = FirebaseFirestore.instance.collection('users').doc(uid);
+    if(querySnapshot.docs.isNotEmpty){
+        Map<String, dynamic> data = querySnapshot.docs.first.data() as Map<String,dynamic>;
+        // print(data['name']);
+        // print(data.toString());
+        debugPrint(querySnapshot.docs.first.data().toString());
+        setState(() {
+          gotEmail = data['email'];
+          gotUserPassword = data['password'];
+          gotUserName = data['name'];
+        });
+        for (var doc in querySnapshot.docs) {
+          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+          if(data['uid'] == uid){
+            print("username: " + data['name'] + "\n");
+            print("email:" + data['email']);
+            print("password:" + data['password']);
+            break;
+          }else{
+            print("ko tim thay");
+          }
+        
+       
+      }
+    }
+  }
+  debugPrint("get User information completed");
 }
+
+  Future<void> updateUser(String uid, bool flagPassword) async{
+    QuerySnapshot querySnapshot = await _items.where('uid', isEqualTo: uid).get();
+    // Map<String, dynamic> data = querySnapshot.docs.first.data() as Map<String,dynamic>;
+    DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(uid);
+    debugPrint("Starting update!");
+    final password ={"name" : "Crystal Palace"};
+    if(flagPassword){
+      AuthService? user = AuthService();
+      user.changePassword("1912002");
+    }
+    if(flagChange){
+      // await userRef.update({
+      //   'name':"Hoang",
+      //   'password':"666",
+      //   'uid': uid,
+      // });
+      userRef.set(password,SetOptions(merge: true));
+      debugPrint("updated successfully");
+    }
+
+    debugPrint("updated completed!");
+  }
+
+  @override
+  void dispose() {
+    
+    super.dispose();
+  }
+}
+
