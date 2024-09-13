@@ -1,10 +1,7 @@
 // import '../services/mqtt_service.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
 import '../services/mqtt_service.dart';
@@ -16,16 +13,16 @@ class MainScreen extends StatefulWidget{
 }
 
 class _MainScreenState extends State<MainScreen>{
-  late AnimationController _animationController;
+  
   bool buttonRelay1= false;
   bool buttonRelay2= false;
   bool buttonRelay3=false;
   bool buttonRelay4=false;
   // Hard code
-  String server = 'io.adafruit.com';
   String username = 'HVVH';
   String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
- 
+  // String userkey = "aio_FaQB66YYXScfOoRQvMnaXbRK5JDx";
+  List<String> topics = ["data","Relay1","Relay2","Relay3","Relay4"];
   MqttHelper? user;
   //
   List<String> values = [];
@@ -33,112 +30,67 @@ class _MainScreenState extends State<MainScreen>{
   String tempData ='';
   String energyData ='';
   Timer? timer;
+
+  // Call this one to avoid error setState() called after dispose
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
   @override
   void initState() {
     super.initState();
-   
-    /*The first call to display previous values*/
-    fetchData("data").then((data) => setState( (){
-      values = data.split(",");
-      humidData = values[0];
-      energyData = values[1];
-      tempData = values[2];
-      }
-    ));
-    fetchData("relay1").then((value) => setState(() {
-      if(value =="0"){  buttonRelay1 = false;
-      }else{  buttonRelay1 = true;}
-    }));
-    fetchData("relay2").then((value) => setState(() {
-      if(value =="0"){  buttonRelay2 = false;
-      }else{  buttonRelay2 = true;}
-    }));
-    fetchData("relay3").then((value) => setState(() {
-      if(value =="0"){  buttonRelay3 = false;
-      }else{  buttonRelay3 = true;}
-    }));
-    fetchData("relay4").then((value) => setState(() {
-      if(value =="0"){  buttonRelay4 = false;
-      }else{  buttonRelay4 = true;}
-    }));
-    /*** First display END HERE***/
+    if(mounted == true){
+      Timer?.periodic(const Duration(seconds: 1), (timer) {
+        // debugPrint(topics[0]);
+          fetchData(topics[0]).then((data) => setState( (){
+            values = data.split(",");
+            // debugPrint(data.toString());
+            humidData = values[1];
+            energyData = values[2];
+            tempData = values[0];
+          }
+        ));
+      });
+    }
+    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+    // user!.mqttConnect();
+    // user!.mqttSubscribe('$username/feeds/topic1');
+    // user!.mqttSubscribe('$username/feeds/topic2');
+    // user!.mqttSubscribe('$username/feeds/topic3');
+    // user!.mqttSubscribe('$username/feeds/topic4');
 
-    /*Periodic call to update feeds values*/ 
-    
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      fetchData("data").then((data) => setState( (){
-      values = data.split(",");
-      humidData = values[0];
-      energyData = values[1];
-      tempData = values[2];
-      }
-      ));
-    });
-    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-    //   fetchData("relay1").then((value) => setState(() {
-    //   if(value =="0"){  buttonRelay1 = false;
-    //   }else{  buttonRelay1 = true;}
-    // }));
-    // });
-    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-    //   fetchData("relay2").then((value) => setState(() {
-    //   if(value =="0"){  buttonRelay2 = false;
-    //   }else{  buttonRelay2 = true;}
-    // }));
-    // });
-    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-    //   fetchData("relay3").then((value) => setState(() {
-    //   if(value =="0"){  buttonRelay3 = false;
-    //   }else{  buttonRelay3 = true;}
-    // }));
-    // });
-    // timer = Timer.periodic(const Duration(seconds: 60), (timer) {
-    //   fetchData("relay4").then((value) => setState(() {
-    //   if(value =="0"){  buttonRelay4 = false;
-    //   }else{  buttonRelay4 = true;}
-    // }));
-    // });
-    
-    /*Periodic call to update feeds values END HERE*/ 
-    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    user!.mqttConnect();
-    user!.mqttSubscribe('$username/feeds/relay1');
-    user!.mqttSubscribe('$username/feeds/relay2');
-    user!.mqttSubscribe('$username/feeds/relay3');
-    user!.mqttSubscribe('$username/feeds/relay4');
-
-    Timer.periodic(const Duration(microseconds: 500), (timer){
-      user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+    if(mounted== true){
+    Timer?.periodic(const Duration(microseconds: 500), (timer){
+      user?.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
         final recMess = c![0].payload as MqttPublishMessage;
         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-                 
-        if(c[0].topic=='$username/feeds/relay1'){
-          if(pt == '0' && buttonRelay1 != false){setState(() => buttonRelay1 = false);}
-          else if(pt == '1' && buttonRelay1 != true){setState(() => buttonRelay1 = true);}
+        if(c[0].topic=='$username/feeds/${topics[1]}'){
+          if(pt == '0' && buttonRelay1 != false){
+            if(mounted == true){setState(() => buttonRelay1 = false);}
+          }
+          else if(pt == '1' && buttonRelay1 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
         }
-        else if(c[0].topic=='$username/feeds/relay2'){
-          if(pt == '0' && buttonRelay2 != false){setState(() => buttonRelay2 = false);}
-          else if(pt == '1' && buttonRelay2 != true){setState(() => buttonRelay2 = true);}
+        else if(c[0].topic=='$username/feeds/${topics[2]}'){
+          if(pt == '0' && buttonRelay2 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
+          else if(pt == '1' && buttonRelay2 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
         }
-        else if(c[0].topic=='$username/feeds/relay3'){
-          if(pt == '0' && buttonRelay3 != false){setState(() => buttonRelay3 = false);}
-          else if(pt == '1' && buttonRelay3 != true){setState(() => buttonRelay3 = true);}
+        else if(c[0].topic=='$username/feeds/${topics[3]}'){
+          if(pt == '0' && buttonRelay3 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
+          else if(pt == '1' && buttonRelay3 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
         }
-        else if(c[0].topic=='$username/feeds/relay4'){
-          if(pt == '0' && buttonRelay4 != false){setState(() => buttonRelay4 = false);}
-          else if(pt == '1' && buttonRelay4 != true){setState(() => buttonRelay4 = true);}
+        else if(c[0].topic=='$username/feeds/${topics[4]}'){
+          if(pt == '0' && buttonRelay4 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
+          else if(pt == '1' && buttonRelay4 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
         }
       }); 
     });
-    
+    }
     
   }
 
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
+ 
 
   @override
   Widget build(BuildContext context){
@@ -383,13 +335,14 @@ class _MainScreenState extends State<MainScreen>{
       onChanged: (bool value) async {
         buttonRelay1 = value;
         // await MqttUtilities.asyncSleep(1);
-        setState(() {
+        if(mounted == true){
+          setState(() {
           // buttonRelay1 = value;
           if(buttonRelay1 == false){
-          user!.mqttPublish('$username/feeds/relay1', '0');
-        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
+          user!.mqttPublish('$username/feeds/${topics[1]}', '0');
+        }else {user!.mqttPublish('$username/feeds/${topics[1]}', '1');}
         });
-      },
+      }},
       activeColor: Colors.white,
       activeTrackColor: Colors.green,
       inactiveTrackColor: Colors.redAccent ,
@@ -400,16 +353,20 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay2, 
       onChanged: (bool value) async{
-        setState(() {
-          buttonRelay2 = value;
-        });
-         await MqttUtilities.asyncSleep(1);
+        if(mounted == true){
+          setState(() {
+            buttonRelay2 = value;
+          });
+        }
+        await MqttUtilities.asyncSleep(1);
         if(buttonRelay2 == false){
-          user!.mqttPublish('$username/feeds/relay2', '0');
-        }else {user!.mqttPublish('$username/feeds/relay2', '1');}
-        setState(() {
-          buttonRelay2 = value;
-        });
+          user!.mqttPublish('$username/feeds/${topics[2]}', '0');
+        }else {user!.mqttPublish('$username/feeds/${topics[2]}', '1');}
+        if(mounted == true){
+          setState(() {
+            buttonRelay2 = value;
+          });
+        }
       },
       activeColor: Colors.white,
       activeTrackColor: Colors.green,
@@ -421,13 +378,15 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay3, 
       onChanged: (bool value) async {
-        setState(() {
-          buttonRelay3 = value;
-        });
+        if(mounted == true){
+          setState(() {
+            buttonRelay3 = value;
+          });
+        }
         await MqttUtilities.asyncSleep(1);
         if(buttonRelay3 == false){
-          user!.mqttPublish('$username/feeds/relay1', '0');
-        }else {user!.mqttPublish('$username/feeds/relay1', '1');}
+          user!.mqttPublish('$username/feeds/${topics[3]}', '0');
+        }else {user!.mqttPublish('$username/feeds/${topics[3]}', '1');}
        
       },
       activeColor: Colors.white,
@@ -440,13 +399,15 @@ class _MainScreenState extends State<MainScreen>{
     return Switch.adaptive(
       value: buttonRelay4, 
       onChanged: (bool value) async{
-        setState(() {
-          buttonRelay4 = value;
-        });
+        if(mounted == true){
+          setState(() {
+            buttonRelay4 = value;
+          });
+        }
         await MqttUtilities.asyncSleep(1);
         if(buttonRelay4 == false){
-          user!.mqttPublish('$username/feeds/relay4', '0');
-        }else {user!.mqttPublish('$username/feeds/relay4', '1');}
+          user!.mqttPublish('$username/feeds/${topics[4]}', '0');
+        }else {user!.mqttPublish('$username/feeds/${topics[4]}', '1');}
        
       },
       activeColor: Colors.white,
@@ -457,9 +418,9 @@ class _MainScreenState extends State<MainScreen>{
   }
 
   Future<String> fetchData(String feedName) async{
-    final String url = 'https://io.adafruit.com/api/v2/HVVH/feeds/$feedName';
+    final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName';
     final headers ={
-      'Authorization':'HVVH aio_Urvv98tocEDOmtPAMqsPnWt6onBo'
+      'Authorization':'$username $userkey'
     };
 
     try{
@@ -469,7 +430,7 @@ class _MainScreenState extends State<MainScreen>{
         // debugPrint("GETTING");
         final json =jsonDecode(response.body);
         String data = json['last_value'];
-        debugPrint(data.toString());
+        // debugPrint(data.toString());
         return data;
       }
     }catch (e){
@@ -478,7 +439,13 @@ class _MainScreenState extends State<MainScreen>{
     }
     return "Failed to fetch Data";
   }
-   
- 
+  
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    
+    super.dispose();
+  }
+  
 }
 
