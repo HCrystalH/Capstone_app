@@ -15,7 +15,7 @@ class _SettingsScreen extends State<SettingsScreen> {
   final FirebaseServices _googleUser = FirebaseServices();
   bool isLoading = false;
   void logout() async{
-     setState(() {
+    setState(() {
       isLoading = true;
     });
     _user.logOut();
@@ -28,6 +28,7 @@ class _SettingsScreen extends State<SettingsScreen> {
         ),
       );
   }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

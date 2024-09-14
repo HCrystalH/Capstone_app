@@ -3,3 +3,5 @@ Testing query, fetch, and publish data to firebase db
 Override setstate() method during StatefulWidget and using mounted to avoid memory leak , dispose method also used
 
 Use set() method instead of update() to avoid overwriting problem that leads to cannot re-access 
+
+Avoid use autoReconnect()

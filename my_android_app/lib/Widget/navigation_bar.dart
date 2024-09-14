@@ -18,7 +18,7 @@ class _NavBarState extends State<NavBar>{
     const Icon(Icons.settings, size: 30)
   ];
   final screen =  const [
-    HomeScreen(),
+    // HomeScreen(),
     SettingsScreen(),
   ];
   int index = 0;

@@ -60,8 +60,15 @@ class AuthService {
     return res;
   }
 
+  Future<void> changePassword(String newPassword) async {
+    final FirebaseAuth firebase = FirebaseAuth.instance;
+    User? currentUser = firebase.currentUser;
+    currentUser!.updatePassword(newPassword);
+  }
+  
   // Log out
   logOut() async {
     await _auth.signOut();
   }
+
 }

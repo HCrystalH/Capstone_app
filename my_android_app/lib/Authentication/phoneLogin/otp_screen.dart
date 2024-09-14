@@ -2,7 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_android_app/Screens/home_screen.dart';
+// import 'package:my_android_app/Screens/home_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String verificationId;
@@ -70,12 +70,12 @@ class _OTPScreenState extends State<OTPScreen> {
                         );
                         await FirebaseAuth.instance
                             .signInWithCredential(credential);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomeScreen(),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   // context,
+                        //   // MaterialPageRoute(
+                        //   //   // builder: (context) =>  HomeScreen(),
+                        //   // ),
+                        // );
                       } catch (e) {
                         // log(e.toString());
                       }

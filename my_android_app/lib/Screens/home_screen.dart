@@ -28,8 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String userkey = "aio_Urvv98tocEDOmtPAMqsPnWt6onBo";
   String server = 'io.adafruit.com';
   String username = 'HVVH';
+  // MqttHelper user = MqttHelper(serverAddress: 'io.adafruit.com', userName: 'kienpham', userKey: 'aio_FaQB66YYXScfOoRQvMnaXbRK5JDx');
   MqttHelper? user;
   final topics = ["data","Relay1","Relay2","Relay3","Relay4"];
+  // final topics = ["topic0","topic1","topic2","topic3","topic4"];
   /* MQTT ENDS*/
   
   
@@ -39,13 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     print(widget.userType);
     super.initState();
-
-    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    user!.mqttConnect();
-    user!.mqttSubscribe('$username/feeds/${topics[1]}');
-    user!.mqttSubscribe('$username/feeds/${topics[2]}');
-    user!.mqttSubscribe('$username/feeds/${topics[3]}');
-    user!.mqttSubscribe('$username/feeds/${topics[4]}');
+    
+    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+    // user!.mqttConnect();
+    // user!.mqttSubscribe('$username/feeds/${topics[1]}');
+    // user!.mqttSubscribe('$username/feeds/${topics[2]}');
+    // user!.mqttSubscribe('$username/feeds/${topics[3]}');
+    // user!.mqttSubscribe('$username/feeds/${topics[4]}');
     /* fetch data ENDS here */
 
   }
@@ -65,11 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: PageView(
         controller: _pageController,
-        children:  const [
+        children:  [
           MainScreen(),
-          UserScreen(),
-          SettingsScreen(),
-          
+          const UserScreen(),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -80,40 +81,35 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "User Profile",),
+            label: "User Profile",
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: "Settings",),
+            label: "Settings",
+          ),
           
         ],
         selectedItemColor: const Color.fromARGB(255, 121, 180, 137),
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
         onTap: (index){
-          _pageController.animateToPage(
-            index, 
-            duration: const Duration(milliseconds: 500), 
-            curve: Curves.ease
-          );  
-               
           // Handle navigation or any other action based on the selected index
           if(mounted == true){
             setState(() {
-              switch(index){
-                case 0:
-                  _currentIndex = 0;
-                  break;
-                case 1:
-                  _currentIndex = 1;
-                  break;
-                case 2:
-                  _currentIndex = 2;
-                  break;
-                }
-              },
+              _currentIndex = index; 
+            }
+             
             );
-            log('Tapped on item $index');
+            debugPrint('Tapped on item $index');
           }
+          _pageController.animateToPage(
+            _currentIndex, 
+            duration: const Duration(milliseconds: 100), 
+            curve: Curves.ease
+          );  
+         
+               
+        
         },
         
       ),
@@ -122,11 +118,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
  
-  @override void deactivate() {
+  // @override void deactivate() {
     
-    _pageController.dispose();
-    super.deactivate();
-  }
+  //   _pageController.dispose();
+  //   super.deactivate();
+  // }
 }
 
   

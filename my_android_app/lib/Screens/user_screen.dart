@@ -31,7 +31,7 @@ class _UserScreenState extends State<UserScreen> {
     
     super.initState();
     getUserInfor('dzMsIGjedqeqtBRgC7ZiBc6mXT42',gotEmail);
-    updateUser('dzMsIGjedqeqtBRgC7ZiBc6mXT42',false);
+    // updateUser('dzMsIGjedqeqtBRgC7ZiBc6mXT42',false);
     // debugPrint("Hello World!");
   }
   // final CarouselController controller = CarouselController(initialItem: 1);
@@ -58,27 +58,41 @@ class _UserScreenState extends State<UserScreen> {
           padding:const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: TextFormField(
+                  controller: userName,
+                  style: const TextStyle(fontSize: 18, color: Colors.black),
+                  decoration: InputDecoration(
+                      labelText: gotEmail,
+                      
+                      labelStyle: const TextStyle(
+                          color: Color(0xff888888), fontSize: 15)),
+                  onChanged: (value) {
+                    setState(() {
+                      
+                    });
+                  },
+                ),
+              ),
               TextFormField(
                 controller: userName,
                 onTapOutside: (event) => nullptr,
                 decoration:  InputDecoration(
                   hintText: gotUserName,
-                  labelText: gotUserName,
-          
+                  labelText: "Name",
                 ),
                 onSaved: (newValue) {
-                  
+                  if(mounted){
+                    setState(() {
+                      gotUserName = newValue!;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 16),
               Text("$gotEmail", style: TextStyle(fontWeight: FontWeight.bold)),
-              // TextFormField(
-              //   decoration: const InputDecoration(
-              //     hintText: 'melpeters@gmail.com',
-              //     labelText: 'Email',
-              //   ),
-              // ),
+              
               const SizedBox(height: 16),
               Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -139,19 +153,9 @@ Future<void> getUserInfor(String uid,dynamic input) async{
           gotUserPassword = data['password'];
           gotUserName = data['name'];
         });
-        for (var doc in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          if(data['uid'] == uid){
-            print("username: " + data['name'] + "\n");
-            print("email:" + data['email']);
-            print("password:" + data['password']);
-            break;
-          }else{
-            print("ko tim thay");
-          }
-        
-       
-      }
+        debugPrint(gotEmail);
+        debugPrint(gotUserPassword);
+        debugPrint(gotUserName);
     }
   }
   debugPrint("get User information completed");
@@ -168,11 +172,7 @@ Future<void> getUserInfor(String uid,dynamic input) async{
       user.changePassword("1912002");
     }
     if(flagChange){
-      // await userRef.update({
-      //   'name':"Hoang",
-      //   'password':"666",
-      //   'uid': uid,
-      // });
+      // set() to add data
       userRef.set(password,SetOptions(merge: true));
       debugPrint("updated successfully");
     }

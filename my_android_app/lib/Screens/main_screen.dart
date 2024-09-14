@@ -1,12 +1,17 @@
 // import '../services/mqtt_service.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:provider/provider.dart';
 import '../services/mqtt_service.dart';
+
+
 class MainScreen extends StatefulWidget{
-   const MainScreen({super.key});
+  
+  MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -14,23 +19,20 @@ class MainScreen extends StatefulWidget{
 
 class _MainScreenState extends State<MainScreen>{
   
-  bool buttonRelay1= false;
-  bool buttonRelay2= false;
-  bool buttonRelay3=false;
-  bool buttonRelay4=false;
+  bool buttonRelay1=false,buttonRelay2= false,buttonRelay3=false,buttonRelay4=false;
   // Hard code
+  String server ='io.adafruit.com';
   String username = 'HVVH';
   String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
   // String userkey = "aio_FaQB66YYXScfOoRQvMnaXbRK5JDx";
-  List<String> topics = ["data","Relay1","Relay2","Relay3","Relay4"];
+  List<String> topics = ["data","relay1","relay2","relay3","relay4"];
+  // final topics = ["topic0","topic1","topic2","topic3","topic4"];
   MqttHelper? user;
   //
   List<String> values = [];
-  String humidData ='';
-  String tempData ='';
-  String energyData ='';
+  String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '';
   Timer? timer;
-
+  bool isConnected = false;
   // Call this one to avoid error setState() called after dispose
   @override
   void setState(fn) {
@@ -41,60 +43,101 @@ class _MainScreenState extends State<MainScreen>{
   @override
   void initState() {
     super.initState();
-    if(mounted == true){
-      Timer?.periodic(const Duration(seconds: 1), (timer) {
-        // debugPrint(topics[0]);
-          fetchData(topics[0]).then((data) => setState( (){
+
+ 
+    /*Oneshot task - Update lastest data*/ 
+    fetchData(topics[1]).then((data) => setState( (){
+      if(data == '0') {buttonRelay1 = false;}
+      else {buttonRelay1 = true;}     
+    }
+    ));
+    fetchData(topics[2]).then((data) => setState( (){
+      if(data == '0') {buttonRelay2 = false;}
+      else {buttonRelay2 = true;}     
+    }
+    ));
+    fetchData(topics[3]).then((data) => setState( (){
+      if(data == '0') {buttonRelay3 = false;}
+      else {buttonRelay3 = true;}     
+    }
+    ));
+    fetchData(topics[4]).then((data) => setState( (){
+      if(data == '0') {buttonRelay4 = false;}
+      else {buttonRelay4 = true;}     
+    }
+    ));
+    /* 1shot task ENDS here*/
+
+    /*Connect and subscribe to feeds in Mqtt server */
+    if(isConnected == false){
+      user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+      user!.mqttConnect();
+      user!.mqttSubscribe('$username/feeds/${topics[1]}');
+      user!.mqttSubscribe('$username/feeds/${topics[2]}');
+      user!.mqttSubscribe('$username/feeds/${topics[3]}');
+      user!.mqttSubscribe('$username/feeds/${topics[4]}');
+    }
+    // if(mounted == true){
+    //   Timer?.periodic(const Duration(milliseconds:500), (timer) {
+    //     // debugPrint(topics[0]);
+    //     fetchData(topics[0]).then((data) => setState( (){
+    //       values = data.split(",");
+    //       // debugPrint(data.toString());
+    //       humidData = values[1];
+    //       // energyData = values[2];
+    //       tempData = values[0];
+    //     }
+    //     ));
+    //   });
+    // }
+  
+    /* Periodically update data from server*/   
+    if(mounted== true){
+      Timer?.periodic(const Duration(microseconds: 500), (timer){
+        fetchData(topics[0]).then((data) => setState( (){
+          if(data != "Failed to fetch Data" && data != "null"){
             values = data.split(",");
             // debugPrint(data.toString());
+            // debugPrint(values.length.toString());
+            tempData = values[0];
             humidData = values[1];
             energyData = values[2];
-            tempData = values[0];
           }
+        }
         ));
+       
+        user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+          final recMess = c![0].payload as MqttPublishMessage;
+          final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+          if(c[0].topic=='$username/feeds/${topics[1]}'){
+            if(pt == '0' && buttonRelay1 != false){
+              setState(() => buttonRelay1 = false);
+            }
+            else if(pt == '1' && buttonRelay1 != true){ setState(() => buttonRelay1 = false);}
+          }
+          else if(c[0].topic=='$username/feeds/${topics[2]}'){
+            if(pt == '0' && buttonRelay2 != false){  setState(() => buttonRelay2 = false);}
+            else if(pt == '1' && buttonRelay2 != true){ setState(() => buttonRelay2 = true);}
+          }
+          else if(c[0].topic=='$username/feeds/${topics[3]}'){
+            if(pt == '0' && buttonRelay3 != false){  setState(() => buttonRelay3 = false);}
+            else if(pt == '1' && buttonRelay3 != true){  setState(() => buttonRelay3 = true);}
+          }
+          else if(c[0].topic=='$username/feeds/${topics[4]}'){
+            if(pt == '0' && buttonRelay4 != false){  {setState(() => buttonRelay4 = false);}}
+            else if(pt == '1' && buttonRelay4 != true){ {setState(() => buttonRelay4 = true);}
+          }
+        }}); 
       });
     }
-    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    // user!.mqttConnect();
-    // user!.mqttSubscribe('$username/feeds/topic1');
-    // user!.mqttSubscribe('$username/feeds/topic2');
-    // user!.mqttSubscribe('$username/feeds/topic3');
-    // user!.mqttSubscribe('$username/feeds/topic4');
-
-    if(mounted== true){
-    Timer?.periodic(const Duration(microseconds: 500), (timer){
-      user?.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-        final recMess = c![0].payload as MqttPublishMessage;
-        final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-        if(c[0].topic=='$username/feeds/${topics[1]}'){
-          if(pt == '0' && buttonRelay1 != false){
-            if(mounted == true){setState(() => buttonRelay1 = false);}
-          }
-          else if(pt == '1' && buttonRelay1 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-        }
-        else if(c[0].topic=='$username/feeds/${topics[2]}'){
-          if(pt == '0' && buttonRelay2 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-          else if(pt == '1' && buttonRelay2 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-        }
-        else if(c[0].topic=='$username/feeds/${topics[3]}'){
-          if(pt == '0' && buttonRelay3 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-          else if(pt == '1' && buttonRelay3 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-        }
-        else if(c[0].topic=='$username/feeds/${topics[4]}'){
-          if(pt == '0' && buttonRelay4 != false){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-          else if(pt == '1' && buttonRelay4 != true){  if(mounted == true){setState(() => buttonRelay1 = false);}}
-        }
-      }); 
-    });
-    }
-    
+    /* ENDS here*/
   }
 
  
 
   @override
   Widget build(BuildContext context){
-
+  
     // return AnimatedBuilder(
     //   animation: _animationController, 
     //   builder: (context,child)
@@ -155,10 +198,10 @@ class _MainScreenState extends State<MainScreen>{
                         dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
                         const SizedBox(width: 10,),
                         // Voltage card
-                        dataCard("Voltage", "$tempData V",const Icon(Icons.bolt)),
+                        dataCard("Voltage", "$voltageData V",const Icon(Icons.bolt)),
                         const SizedBox(width: 10,),
                         // Current card
-                        dataCard("Current", "$tempData A",const Icon(Icons.amp_stories)),
+                        dataCard("Current", "$currentData A",const Icon(Icons.amp_stories)),
                       ],
                     ),
                   ),
@@ -187,7 +230,7 @@ class _MainScreenState extends State<MainScreen>{
                 Row(children: [
                   
                   
-                  functionCard(context,"Smart Lightning","Bedroom \n $buttonRelay1 ",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
+                  functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
                   const SizedBox(width: 10),
                   functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
                 
@@ -338,9 +381,12 @@ class _MainScreenState extends State<MainScreen>{
         if(mounted == true){
           setState(() {
           // buttonRelay1 = value;
+          // user!.mqttConnect();
+          // user!.mqttSubscribe('$username/feeds/${topics[1]}');
           if(buttonRelay1 == false){
-          user!.mqttPublish('$username/feeds/${topics[1]}', '0');
-        }else {user!.mqttPublish('$username/feeds/${topics[1]}', '1');}
+            
+            user!.mqttPublish('$username/feeds/${topics[1]}', '0');
+          }else {user!.mqttPublish('$username/feeds/${topics[1]}', '1');}
         });
       }},
       activeColor: Colors.white,

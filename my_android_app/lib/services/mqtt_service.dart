@@ -29,7 +29,7 @@ class MqttHelper {
     client.onConnected = onConnected;
     client.onSubscribed = onSubscribed;
     client.pongCallback = pong;
-    client.autoReconnect = true;
+    // client.autoReconnect = true;
     // client.onAutoReconnect = onAutoReconnect;
     // client.onAutoReconnected = onAutoReconnected;
 
@@ -99,7 +99,7 @@ void onAutoReconnected() {
 
   void mqttPublish (String pubTopic, String data)  async{
     // const pubTopic = 'HCrystalH/feeds/humidity';
-    await MqttUtilities.asyncSleep(2);
+    // await MqttUtilities.asyncSleep(1);
     if(isConnected()){
       print("connected to publish data");
       final builder = MqttClientPayloadBuilder();
@@ -150,22 +150,7 @@ void onAutoReconnected() {
         print('OnDisconnected callback is solicited, this is correct');
     }
   }
-  void getData() {
-     
-    if(isConnected()){
-      // print("connected successfully to get data");
-      String data ="";
-      client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-          final recMess = c![0].payload as MqttPublishMessage;
-          final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-        
-          data = pt;
-          // print('Received message: topic is ${c[0].topic}, payload is $pt');
-          // print('$pt');
-        });
-      
-    }
-  }
+ 
 
  
 }

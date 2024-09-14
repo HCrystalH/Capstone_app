@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/home_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
-
-
+import 'package:my_android_app/Screens/user_screen.dart';
+import './services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
+  
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  
+  
 
   // This widget is the root of your application.
   @override
@@ -24,12 +27,20 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder(stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if(snapshot.hasData){
-            return const HomeScreen();
+            
+            // print(snapshot.data!.emailVerified);
+            final type;
+            if(snapshot.data!.emailVerified){
+              type = "googleUser";
+            }else {type = "default";}
+            // final getuserType = supporter!.getUserInfor(snapshot.data!.uid,'name');
+            return HomeScreen(userType: '$type',);
           }else{
             return const LoginPage();
           }
         },
       ),
+      // home: UserScreen()
     );
   }
 }

@@ -33,7 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       // Navigate to the login Screen
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()));
+          MaterialPageRoute(builder: (context) =>  HomeScreen(userType: 'default',)));
     } else {
       setState(() {
         isLoading = false;
@@ -100,5 +100,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       )),
     );
+  }
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    emailController.dispose();
+    passwordController.dispose();
+    nameController.dispose();
+    super.deactivate();
   }
 }

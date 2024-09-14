@@ -30,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   bool checkEmail = false;
   bool checkPassword = false;
 
+ 
   // Variables to check validity of email and password
   // var _emailInvalid = false;
   // var _passInvalid = false;
@@ -57,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigate user to home screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
+          builder: (context) =>  HomeScreen(userType: 'default',),
         ),
       );
     } else {
@@ -124,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>  const HomeScreen(),
+                      builder: (context) =>   HomeScreen(userType: 'googleUser',),
                     ),
                   );
                 },
@@ -259,5 +260,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _showPass = !_showPass;
     });
+  }
+
+  @override void deactivate() {
+    
+    passwordController.dispose();
+    emailController.dispose();
+    super.deactivate();
   }
 }
