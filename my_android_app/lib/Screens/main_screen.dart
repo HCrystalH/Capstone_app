@@ -16,23 +16,26 @@ class MainScreen extends StatefulWidget{
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
-
 class _MainScreenState extends State<MainScreen>{
   
   bool buttonRelay1=false,buttonRelay2= false,buttonRelay3=false,buttonRelay4=false;
   // Hard code
   String server ='io.adafruit.com';
-  String username = 'HVVH';
-  String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
-  // String userkey = "aio_FaQB66YYXScfOoRQvMnaXbRK5JDx";
-  List<String> topics = ["data","relay1","relay2","relay3","relay4"];
-  // final topics = ["topic0","topic1","topic2","topic3","topic4"];
+  String username = 'kienpham';
+  // String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
+  String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
+  // List<String> topics = ["data","relay1","relay2","relay3","relay4"];
+  final topics = ["topic0","topic1","topic2","topic3","topic4"];
   MqttHelper? user;
   //
   List<String> values = [];
   String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '';
   Timer? timer;
-  bool isConnected = false;
+  bool isConnected = false , isGetData = false;
+  bool _isLoading = true;  // using for loading page
+  List<bool> listOfInitState = [false,false,false,false,false];
+  final Completer<void> _connectionCompleter = Completer<void>();
+
   // Call this one to avoid error setState() called after dispose
   @override
   void setState(fn) {
@@ -43,40 +46,24 @@ class _MainScreenState extends State<MainScreen>{
   @override
   void initState() {
     super.initState();
-
- 
-    /*Oneshot task - Update lastest data*/ 
-    fetchData(topics[1]).then((data) => setState( (){
-      if(data == '0') {buttonRelay1 = false;}
-      else {buttonRelay1 = true;}     
+    /*Oneshot task - Update lastest data*/
+    
+    /*Connect and subscribe to feeds in Mqtt server */ 
+    if(isConnected == false && mounted){
+      subscribeToFeeds();
+      isConnected = true;
     }
-    ));
-    fetchData(topics[2]).then((data) => setState( (){
-      if(data == '0') {buttonRelay2 = false;}
-      else {buttonRelay2 = true;}     
-    }
-    ));
-    fetchData(topics[3]).then((data) => setState( (){
-      if(data == '0') {buttonRelay3 = false;}
-      else {buttonRelay3 = true;}     
-    }
-    ));
-    fetchData(topics[4]).then((data) => setState( (){
-      if(data == '0') {buttonRelay4 = false;}
-      else {buttonRelay4 = true;}     
-    }
-    ));
     /* 1shot task ENDS here*/
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   setState(() {
+    //     isConnected = true; // Change the connection state
+    //   });
+    //   _connectionCompleter.complete(); // Complete the completer
+    //   getStateOneTime();  // Call this after the connection is established
+    // });
+    getStateOneTime();
 
-    /*Connect and subscribe to feeds in Mqtt server */
-    if(isConnected == false){
-      user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-      user!.mqttConnect();
-      user!.mqttSubscribe('$username/feeds/${topics[1]}');
-      user!.mqttSubscribe('$username/feeds/${topics[2]}');
-      user!.mqttSubscribe('$username/feeds/${topics[3]}');
-      user!.mqttSubscribe('$username/feeds/${topics[4]}');
-    }
+  
     // if(mounted == true){
     //   Timer?.periodic(const Duration(milliseconds:500), (timer) {
     //     // debugPrint(topics[0]);
@@ -92,16 +79,17 @@ class _MainScreenState extends State<MainScreen>{
     // }
   
     /* Periodically update data from server*/   
-    if(mounted== true){
+    if(mounted== true && !isGetData){
       Timer?.periodic(const Duration(microseconds: 500), (timer){
         fetchData(topics[0]).then((data) => setState( (){
           if(data != "Failed to fetch Data" && data != "null"){
+
             values = data.split(",");
             // debugPrint(data.toString());
-            // debugPrint(values.length.toString());
+            // debugPrint(values.toString());
             tempData = values[0];
             humidData = values[1];
-            energyData = values[2];
+            // energyData = values[2];
           }
         }
         ));
@@ -146,7 +134,8 @@ class _MainScreenState extends State<MainScreen>{
         scrollDirection: Axis.vertical,
         child:SizedBox(
           
-        child: Padding(
+        child: _isLoading? Center(child:  CircularProgressIndicator()) 
+        : Padding(
           
           padding: const EdgeInsets.only(left: 10,right:10),
             child:  Column(
@@ -471,26 +460,101 @@ class _MainScreenState extends State<MainScreen>{
 
     try{
       // debugPrint("Before post");
-      final response = await https.get(Uri.parse(url),headers: headers);
+      final response = await https.get(Uri.parse(url),headers: headers).timeout(const Duration(seconds: 60));
+      // debugPrint(response.statusCode.toString());
       if(response.statusCode == 200){
         // debugPrint("GETTING");
         final json =jsonDecode(response.body);
         String data = json['last_value'];
         // debugPrint(data.toString());
         return data;
+      }else{
+        return "Failed to fetch Data";
       }
-    }catch (e){
+    } on TimeoutException catch (_) {
+      debugPrint("Request timed out");
+      return "Request timed out"; 
+    }// Handle timeout
+    catch (e){
       debugPrint(e.toString());
       return "null"; 
     }
-    return "Failed to fetch Data";
+  }
+ 
+  void subscribeToFeeds(){
+    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+    user!.mqttConnect();
+    user!.mqttSubscribe('$username/feeds/${topics[1]}');
+    user!.mqttSubscribe('$username/feeds/${topics[2]}');
+    user!.mqttSubscribe('$username/feeds/${topics[3]}');
+    user!.mqttSubscribe('$username/feeds/${topics[4]}');
+  }
+  // void _getStateOneTime(){
+  //   fetchData(topics[1]).then((data) => setState( (){
+  //     if(data =='0') {buttonRelay1 = false;}
+  //     else if(data == '1') {buttonRelay1 = true;}     
+  //   }));
+  //   fetchData(topics[2]).then((data) => setState( (){
+  //     if(data =='0') {buttonRelay2 = false;}
+  //     else if(data == '1') {buttonRelay2 = true;}     
+  //   }));
+  //   fetchData(topics[3]).then((data) => setState( (){
+  //     if(data =='0') {buttonRelay3 = false;}
+  //     else if(data == '1') {buttonRelay3 = true;}     
+  //   }));
+  //   fetchData(topics[4]).then((data) => setState( (){
+  //     if(data =='0') {buttonRelay4 = false;}
+  //     else if(data == '1') {buttonRelay4 = true;}     
+  //   }));
+  // }
+
+  Future<void> getStateOneTime() async {
+  // await _connectionCompleter.future; // Wait for the connection to be established
+
+  for (int i = 1; i <= 4; i++) {
+    String data =  await fetchData(topics[i]);
+    debugPrint(data);
+    setState(() {
+      if (data == '0') {
+        switch (i) {
+          case 1:
+            buttonRelay1 = false;
+            break;
+          case 2:
+            buttonRelay2 = false;
+            break;
+          case 3:
+            buttonRelay3 = false;
+            break;
+          case 4:
+            buttonRelay4 = false;
+            break;
+        }
+      } else if (data == '1') {
+        switch (i) {
+          case 1:
+            buttonRelay1 = true;
+            break;
+          case 2:
+            buttonRelay2 = true;
+            break;
+          case 3:
+            buttonRelay3 = true;
+            break;
+          case 4:
+            buttonRelay4 = true;
+            break;
+        }
+      }
+    });
   }
   
+  setState(() {_isLoading = false;});
+}
   @override
-  void dispose() {
-    // TODO: implement dispose
-    
+  void dispose() { 
     super.dispose();
+    timer?.cancel();
   }
   
 }

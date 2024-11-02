@@ -21,6 +21,7 @@ class _UserScreenState extends State<UserScreen> {
   String? gotEmail,gotUserPassword;
   String gotUserName ="";
   bool flagChange = true;
+  bool isUser = false;
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
@@ -30,7 +31,7 @@ class _UserScreenState extends State<UserScreen> {
   void initState() {
     
     super.initState();
-    getUserInfor('dzMsIGjedqeqtBRgC7ZiBc6mXT42',gotEmail);
+    if(isUser)  getUserInfor('dzMsIGjedqeqtBRgC7ZiBc6mXT42',gotEmail);
     // updateUser('dzMsIGjedqeqtBRgC7ZiBc6mXT42',false);
     // debugPrint("Hello World!");
   }

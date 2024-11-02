@@ -1,14 +1,10 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as https;
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/settings_screen.dart';
 // import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/user_screen.dart';
-import 'package:my_android_app/services/mqtt_service.dart';
+
 
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
@@ -24,31 +20,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController();
   int _currentIndex = 0;  
 
-  /* MQTT */
-  String userkey = "aio_Urvv98tocEDOmtPAMqsPnWt6onBo";
-  String server = 'io.adafruit.com';
-  String username = 'HVVH';
-  // MqttHelper user = MqttHelper(serverAddress: 'io.adafruit.com', userName: 'kienpham', userKey: 'aio_FaQB66YYXScfOoRQvMnaXbRK5JDx');
-  MqttHelper? user;
-  final topics = ["data","Relay1","Relay2","Relay3","Relay4"];
-  // final topics = ["topic0","topic1","topic2","topic3","topic4"];
-  /* MQTT ENDS*/
-  
-  
   /*Declared variables END*/ 
   
   @override
   void initState() {
     print(widget.userType);
     super.initState();
-    
-    // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    // user!.mqttConnect();
-    // user!.mqttSubscribe('$username/feeds/${topics[1]}');
-    // user!.mqttSubscribe('$username/feeds/${topics[2]}');
-    // user!.mqttSubscribe('$username/feeds/${topics[3]}');
-    // user!.mqttSubscribe('$username/feeds/${topics[4]}');
-    /* fetch data ENDS here */
 
   }
 
@@ -65,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),
-      body: PageView(
-        controller: _pageController,
+      body: IndexedStack(
+        index: _currentIndex,
         children:  [
           MainScreen(),
           const UserScreen(),
@@ -102,14 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
             );
             debugPrint('Tapped on item $index');
           }
-          _pageController.animateToPage(
-            _currentIndex, 
-            duration: const Duration(milliseconds: 100), 
-            curve: Curves.ease
-          );  
-         
-               
-        
+          // _pageController.animateToPage(
+          //   _currentIndex, 
+          //   duration: const Duration(milliseconds: 100), 
+          //   curve: Curves.ease
+          // );  
         },
         
       ),
@@ -118,11 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
  
-  // @override void deactivate() {
+  @override void deactivate() {
     
-  //   _pageController.dispose();
-  //   super.deactivate();
-  // }
+    _pageController.dispose();
+    super.deactivate();
+  }
 }
 
   
