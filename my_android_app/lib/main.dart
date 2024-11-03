@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           if(snapshot.hasData){
             
             // print(snapshot.data!.emailVerified);
-            final type;
+            dynamic type;
             if(snapshot.data!.emailVerified){
               type = "googleUser";
             }else {type = "default";}

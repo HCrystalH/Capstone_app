@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/settings_screen.dart';
 // import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/user_screen.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
@@ -19,14 +20,16 @@ class _HomeScreenState extends State<HomeScreen> {
   
   final PageController _pageController = PageController();
   int _currentIndex = 0;  
-
+  User? user = FirebaseAuth.instance.currentUser ;
+  String? gotUID;
+ 
   /*Declared variables END*/ 
   
   @override
   void initState() {
-    print(widget.userType);
+    debugPrint(widget.userType);
     super.initState();
-
+    initVariables();  // get UID
   }
 
   @override
@@ -46,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _currentIndex,
         children:  [
           MainScreen(),
-          const UserScreen(),
+          UserScreen(uid: '$gotUID'),
           const SettingsScreen(),
         ],
       ),
@@ -91,7 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
- 
+  void initVariables(){
+    debugPrint(user.toString());
+    gotUID = user!.uid;
+  }
+
   @override void deactivate() {
     
     _pageController.dispose();

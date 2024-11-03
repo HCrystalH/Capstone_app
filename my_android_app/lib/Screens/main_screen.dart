@@ -32,9 +32,10 @@ class _MainScreenState extends State<MainScreen>{
   String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '';
   Timer? timer;
   bool isConnected = false , isGetData = false;
-  bool _isLoading = true;  // using for loading page
+  // bool _isLoading = true;  // using for loading page
+  bool _isLoading = false;
   List<bool> listOfInitState = [false,false,false,false,false];
-  final Completer<void> _connectionCompleter = Completer<void>();
+  // final Completer<void> _connectionCompleter = Completer<void>();
 
   // Call this one to avoid error setState() called after dispose
   @override
@@ -49,10 +50,10 @@ class _MainScreenState extends State<MainScreen>{
     /*Oneshot task - Update lastest data*/
     
     /*Connect and subscribe to feeds in Mqtt server */ 
-    if(isConnected == false && mounted){
-      subscribeToFeeds();
-      isConnected = true;
-    }
+    // if(isConnected == false && mounted){
+    //   subscribeToFeeds();
+    //   isConnected = true;
+    // }
     /* 1shot task ENDS here*/
     // Future.delayed(const Duration(seconds: 3), () {
     //   setState(() {
@@ -61,63 +62,47 @@ class _MainScreenState extends State<MainScreen>{
     //   _connectionCompleter.complete(); // Complete the completer
     //   getStateOneTime();  // Call this after the connection is established
     // });
-    getStateOneTime();
-
-  
-    // if(mounted == true){
-    //   Timer?.periodic(const Duration(milliseconds:500), (timer) {
-    //     // debugPrint(topics[0]);
-    //     fetchData(topics[0]).then((data) => setState( (){
-    //       values = data.split(",");
-    //       // debugPrint(data.toString());
-    //       humidData = values[1];
-    //       // energyData = values[2];
-    //       tempData = values[0];
-    //     }
-    //     ));
-    //   });
-    // }
+    // getStateOneTime();
   
     /* Periodically update data from server*/   
-    if(mounted== true && !isGetData){
-      Timer?.periodic(const Duration(microseconds: 500), (timer){
-        fetchData(topics[0]).then((data) => setState( (){
-          if(data != "Failed to fetch Data" && data != "null"){
+    // if(mounted== true && !isGetData){
+    //   Timer?.periodic(const Duration(microseconds: 500), (timer){
+    //     fetchData(topics[0]).then((data) => setState( (){
+    //       if(data != "Failed to fetch Data" && data != "null"){
 
-            values = data.split(",");
-            // debugPrint(data.toString());
-            // debugPrint(values.toString());
-            tempData = values[0];
-            humidData = values[1];
-            // energyData = values[2];
-          }
-        }
-        ));
-       
-        user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-          final recMess = c![0].payload as MqttPublishMessage;
-          final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-          if(c[0].topic=='$username/feeds/${topics[1]}'){
-            if(pt == '0' && buttonRelay1 != false){
-              setState(() => buttonRelay1 = false);
-            }
-            else if(pt == '1' && buttonRelay1 != true){ setState(() => buttonRelay1 = false);}
-          }
-          else if(c[0].topic=='$username/feeds/${topics[2]}'){
-            if(pt == '0' && buttonRelay2 != false){  setState(() => buttonRelay2 = false);}
-            else if(pt == '1' && buttonRelay2 != true){ setState(() => buttonRelay2 = true);}
-          }
-          else if(c[0].topic=='$username/feeds/${topics[3]}'){
-            if(pt == '0' && buttonRelay3 != false){  setState(() => buttonRelay3 = false);}
-            else if(pt == '1' && buttonRelay3 != true){  setState(() => buttonRelay3 = true);}
-          }
-          else if(c[0].topic=='$username/feeds/${topics[4]}'){
-            if(pt == '0' && buttonRelay4 != false){  {setState(() => buttonRelay4 = false);}}
-            else if(pt == '1' && buttonRelay4 != true){ {setState(() => buttonRelay4 = true);}
-          }
-        }}); 
-      });
-    }
+    //         values = data.split(",");
+    //         // debugPrint(data.toString());
+    //         // debugPrint(values.toString());
+    //         tempData = values[0];
+    //         humidData = values[1];
+    //         // energyData = values[2];
+    //       }
+    //     }
+    //     ));
+    //     user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
+    //       final recMess = c![0].payload as MqttPublishMessage;
+    //       final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    //       if(c[0].topic=='$username/feeds/${topics[1]}'){
+    //         if(pt == '0' && buttonRelay1 != false){
+    //           setState(() => buttonRelay1 = false);
+    //         }
+    //         else if(pt == '1' && buttonRelay1 != true){ setState(() => buttonRelay1 = false);}
+    //       }
+    //       else if(c[0].topic=='$username/feeds/${topics[2]}'){
+    //         if(pt == '0' && buttonRelay2 != false){  setState(() => buttonRelay2 = false);}
+    //         else if(pt == '1' && buttonRelay2 != true){ setState(() => buttonRelay2 = true);}
+    //       }
+    //       else if(c[0].topic=='$username/feeds/${topics[3]}'){
+    //         if(pt == '0' && buttonRelay3 != false){  setState(() => buttonRelay3 = false);}
+    //         else if(pt == '1' && buttonRelay3 != true){  setState(() => buttonRelay3 = true);}
+    //       }
+    //       else if(c[0].topic=='$username/feeds/${topics[4]}'){
+    //         if(pt == '0' && buttonRelay4 != false){  {setState(() => buttonRelay4 = false);}}
+    //         else if(pt == '1' && buttonRelay4 != true){ {setState(() => buttonRelay4 = true);}
+    //       }
+    //     }}); 
+    //   });
+    // }
     /* ENDS here*/
   }
 
@@ -134,7 +119,7 @@ class _MainScreenState extends State<MainScreen>{
         scrollDirection: Axis.vertical,
         child:SizedBox(
           
-        child: _isLoading? Center(child:  CircularProgressIndicator()) 
+        child: _isLoading? const Center(child:  CircularProgressIndicator()) 
         : Padding(
           
           padding: const EdgeInsets.only(left: 10,right:10),
@@ -245,8 +230,6 @@ class _MainScreenState extends State<MainScreen>{
     );
     // );
   }
-
-  
 
   Container functionCard(BuildContext context, content, room,String feedName, IconData icon,  Color iconColor, Color backgroundColor) {
     Switch switchName = relay1();
@@ -489,67 +472,50 @@ class _MainScreenState extends State<MainScreen>{
     user!.mqttSubscribe('$username/feeds/${topics[3]}');
     user!.mqttSubscribe('$username/feeds/${topics[4]}');
   }
-  // void _getStateOneTime(){
-  //   fetchData(topics[1]).then((data) => setState( (){
-  //     if(data =='0') {buttonRelay1 = false;}
-  //     else if(data == '1') {buttonRelay1 = true;}     
-  //   }));
-  //   fetchData(topics[2]).then((data) => setState( (){
-  //     if(data =='0') {buttonRelay2 = false;}
-  //     else if(data == '1') {buttonRelay2 = true;}     
-  //   }));
-  //   fetchData(topics[3]).then((data) => setState( (){
-  //     if(data =='0') {buttonRelay3 = false;}
-  //     else if(data == '1') {buttonRelay3 = true;}     
-  //   }));
-  //   fetchData(topics[4]).then((data) => setState( (){
-  //     if(data =='0') {buttonRelay4 = false;}
-  //     else if(data == '1') {buttonRelay4 = true;}     
-  //   }));
-  // }
+ 
 
   Future<void> getStateOneTime() async {
   // await _connectionCompleter.future; // Wait for the connection to be established
 
-  for (int i = 1; i <= 4; i++) {
-    String data =  await fetchData(topics[i]);
-    debugPrint(data);
-    setState(() {
-      if (data == '0') {
-        switch (i) {
-          case 1:
-            buttonRelay1 = false;
-            break;
-          case 2:
-            buttonRelay2 = false;
-            break;
-          case 3:
-            buttonRelay3 = false;
-            break;
-          case 4:
-            buttonRelay4 = false;
-            break;
+    for (int i = 1; i <= 4; i++) {
+      String data =  await fetchData(topics[i]);
+      // debugPrint(data);
+      setState(() {
+        if (data == '0') {
+          switch (i) {
+            case 1:
+              buttonRelay1 = false;
+              break;
+            case 2:
+              buttonRelay2 = false;
+              break;
+            case 3:
+              buttonRelay3 = false;
+              break;
+            case 4:
+              buttonRelay4 = false;
+              break;
+          }
+        } else if (data == '1') {
+          switch (i) {
+            case 1:
+              buttonRelay1 = true;
+              break;
+            case 2:
+              buttonRelay2 = true;
+              break;
+            case 3:
+              buttonRelay3 = true;
+              break;
+            case 4:
+              buttonRelay4 = true;
+              break;
+          }
         }
-      } else if (data == '1') {
-        switch (i) {
-          case 1:
-            buttonRelay1 = true;
-            break;
-          case 2:
-            buttonRelay2 = true;
-            break;
-          case 3:
-            buttonRelay3 = true;
-            break;
-          case 4:
-            buttonRelay4 = true;
-            break;
-        }
-      }
-    });
-  }
-  
-  setState(() {_isLoading = false;});
+      });
+    }
+    
+    setState(() {_isLoading = false;});
 }
   @override
   void dispose() { 
