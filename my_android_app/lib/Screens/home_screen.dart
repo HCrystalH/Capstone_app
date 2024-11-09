@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/history_screen.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
+import 'package:my_android_app/Screens/power_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/settings_screen.dart';
 // import 'package:my_android_app/Authentication/login.dart';
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           UserScreen(uid: '$gotUID'),
           const SettingsScreen(),
           const ChartScreen(),
+          const PowerConsumptionScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -72,6 +74,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: "Chart",
+          ),
+           BottomNavigationBarItem(
+            icon: Icon(Icons.energy_savings_leaf),
+            label: "Power Consumption",
           ),
         ],
         selectedItemColor: const Color.fromARGB(255, 121, 180, 137),

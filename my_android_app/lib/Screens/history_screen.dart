@@ -58,11 +58,6 @@ class _ChartScreenState extends State<ChartScreen> {
                 title: const ChartTitle(text: 'Temperature Chart'),
                 primaryXAxis: const DateTimeAxis(),
                 primaryYAxis: const NumericAxis(minimum: 10,),  
-                legend: const Legend(
-                  opacity: 2.0,
-                  isVisible: true,
-                  isResponsive: true,
-                ),
                 series: <CartesianSeries>[
                   LineSeries<ChartData,DateTime>(
                     dataSource: _temperatureData,
@@ -81,7 +76,6 @@ class _ChartScreenState extends State<ChartScreen> {
               child:  SfCartesianChart(
                 tooltipBehavior: TooltipBehavior(enable: true),
                 title: const ChartTitle(text: 'Humidity Chart'),
-                legend: const Legend(isVisible: true),
                 primaryXAxis: const DateTimeAxis(),
                 primaryYAxis: const NumericAxis(),  
                 series: <CartesianSeries>[
