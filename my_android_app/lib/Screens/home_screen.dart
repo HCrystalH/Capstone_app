@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:my_android_app/Screens/history_screen.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/settings_screen.dart';
@@ -51,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           MainScreen(),
           UserScreen(uid: '$gotUID'),
           const SettingsScreen(),
+          const ChartScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -67,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.settings),
             label: "Settings",
           ),
-          
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: "Chart",
+          ),
         ],
         selectedItemColor: const Color.fromARGB(255, 121, 180, 137),
         unselectedItemColor: Colors.grey,

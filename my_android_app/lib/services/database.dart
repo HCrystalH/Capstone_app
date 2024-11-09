@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SupportedUser {
- 
 
   Future<String> getUserInfor(String uid,String data) async{
     final CollectionReference items = FirebaseFirestore.instance.collection('users');
