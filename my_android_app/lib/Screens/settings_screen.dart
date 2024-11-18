@@ -21,12 +21,12 @@ class _SettingsScreen extends State<SettingsScreen> {
     _user.logOut();
     _googleUser.googleSignOut();
     
-      // Navigate user to home screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const LoginPage(),
-        ),
-      );
+    // Navigate user to Login screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
+      ),
+    );
   }
   
   @override

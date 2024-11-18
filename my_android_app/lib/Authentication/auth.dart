@@ -13,10 +13,14 @@ class AuthService {
 
   // For signUp
   Future<String> signUpUser(
-      {required String email,
+    { required String email,
       required String password,
-      required String name}) async {
-    String res = "Some error Occurred";
+      required String name,
+      required String server,
+      required String userName,
+      required String userKey,
+    }) async {
+    String res = "Some fields are empty!!!";
 
     try {
       if (email.isNotEmpty || password.isNotEmpty || name.isNotEmpty) {
@@ -29,7 +33,9 @@ class AuthService {
           'email': email,
           'password': password,
           'uid': credential.user!.uid,
-          
+          'userName': userName,
+          'userKey': userKey,
+          'server' : server 
         });
         res = "Successfully";
       }

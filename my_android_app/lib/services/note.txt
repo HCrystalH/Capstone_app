@@ -5,3 +5,7 @@ Override setstate() method during StatefulWidget and using mounted to avoid memo
 Use set() method instead of update() to avoid overwriting problem that leads to cannot re-access 
 
 Avoid use autoReconnect()
+
+*** Call request to get data from adafruit server over 30 packet per min will cause error 429 ( rate limit)
+
+18/11/2024 : Update Firebase User password must reAuthenticate before updating

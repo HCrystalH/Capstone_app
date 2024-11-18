@@ -9,7 +9,7 @@ class ChartScreen extends StatefulWidget{
 }
 
 class _ChartScreenState extends State<ChartScreen> {
-  DateTime _startTime = DateTime.now().subtract(Duration(days: 7));
+  DateTime _startTime = DateTime.now().subtract(const Duration(days: 7));
   DateTime _endTime = DateTime.now();
   List<ChartData> _chartData = [];
   List<ChartData> _temperatureData = [];

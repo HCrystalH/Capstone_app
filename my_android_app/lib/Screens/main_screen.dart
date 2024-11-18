@@ -1,92 +1,93 @@
-// import '../services/mqtt_service.dart';
 import 'dart:async';
 import 'dart:convert';
-// import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
-// import 'package:provider/provider.dart';
 import '../services/mqtt_service.dart';
+import 'package:my_android_app/services/database.dart';
 
-
+// ignore: must_be_immutable
 class MainScreen extends StatefulWidget{
-  
-  MainScreen({super.key});
+  String uid;
+  MainScreen({super.key,required this.uid});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 class _MainScreenState extends State<MainScreen>{
   
+  /*____________________ Declaring Variables  _____________________*/ 
+ 
   // bool buttonRelay1=false,buttonRelay2= false,buttonRelay3=false,buttonRelay4=false;
   // Hard code
-  String server ='io.adafruit.com';
-  // String username = 'kienpham';
-  String username = 'HVVH';
-  String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
+  late String server ="",username ="",userkey ="";
+  // String server ='io.adafruit.com';
+  // // String username = 'kienpham';
+  // String username = 'HVVH';
+  // String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
+
+  // late String serverDB="", usernameDB="",userkeyDB="";
   
   // String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
   List<String> topics = ["data","relay1","relay2","relay3","relay4"];
   // final topics = ["topic0","topic1","topic2","topic3","topic4"];
   MqttHelper? user;
-  //
   List<String> values = [];
   List<String> listOfData = [];
   String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '';
+
   Timer? timer;
   bool isConnected = false , isGetData = false;
   bool _isLoading = true;  // using for loading page
+  bool isFetchDataSuccess = false;
   // bool _isLoading = false;
   //[0] : buttonRelay1 , [1]: buttonRelay2 ,...
   List<bool> listOfButtonRelay = [false,false,false,false];
-  final Completer<void> _connectionCompleter = Completer<void>();
+  // final Completer<void> _connectionCompleter = Completer<void>();
   DateTime startDate = DateTime.parse('2024-11-04T00:00:00Z'); // Start date
   DateTime endDate = DateTime.parse('2024-11-04T23:59:59Z'); 
+  SupportedUser? gotuser;
+
+  /*____________________ Declaring Variables END HERE _____________________*/ 
+  //*****************************************************************\\
   // Call this one to avoid error setState() called after dispose
   @override
   void setState(fn) {
     if(mounted) {super.setState(fn);}
   }
   
-  Future<void> fetchHistoryOfFeed(String feedName, DateTime startDate, DateTime endDate) async{
-    // final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName';
-    final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName/data';
-    final response = await https.get(
-      Uri.parse('$url?start=$startDate&end=$endDate'),
-      //  Uri.parse('$url?start=$startDate&end=$endDate'),
-      headers: {
-        'X-AIO-Key': userkey
-      },
-    );
-  // "X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  //"X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  if (response.statusCode == 200) {
-    // If the server returns a 200 OK response, parse the JSON.
-    final  data  = jsonDecode(response.body);
-    debugPrint(data.toString());
-  } else {
-    // If the server did not return a 200 OK response, throw an exception.
-    throw Exception('Failed to load data from Adafruit IO');
-  }
-  }
 
   @override
   void initState() {
     super.initState();
-    /*Connect and subscribe to feeds in Mqtt server */ 
-    if(isConnected == false && mounted){
-      // subscribeToFeeds();
-      isConnected = true;
-    }
-    Future.delayed(const Duration(seconds: 3), () {
-      _connectionCompleter.complete(); // Complete the completer
-      // getStateOneTime();  // Call this after the connection is established
-    });
-    // getStateOneTime();
-    // getState();
-    fetchHistoryOfFeed("data",startDate,endDate);
-  }
+    // retrieve Username and userkey
+    fetchUserDataFromFirebase();
 
+    /*Connect and subscribe to feeds in Mqtt server */ 
+
+    Timer(const Duration(seconds: 2), handleToSubscribe);
+    Timer(const Duration(seconds: 1), subscribeToFeeds);
+    Timer(const Duration(seconds: 1),handleToGetState);
+    // Timer(const Duration(seconds: 2), handleToGetState);
+    // fetchHistoryOfFeed("data",startDate,endDate);
+  }
+  void handleToGetState(){
+
+    getStateOneTime();
+    getState();
+  }
+  
+  void handleToSubscribe(){
+    // Callback function when use timer
+    debugPrint(username);
+    debugPrint(server);
+    debugPrint(userkey);
+    if(username == '' || userkey == ''  || server =='') {fetchUserDataFromFirebase();}
+    else if(username != '' && userkey != ''  && server !='') {
+      debugPrint("Ready to subscribe!");
+      setState(() {isFetchDataSuccess = true;} );
+    }
+  }
 
   @override
   Widget build(BuildContext context){
@@ -394,13 +395,16 @@ class _MainScreenState extends State<MainScreen>{
   }
  
   void subscribeToFeeds(){
-    user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
-    user!.mqttConnect();
-    user!.mqttSubscribe('$username/feeds/${topics[0]}');
-    user!.mqttSubscribe('$username/feeds/${topics[1]}');
-    user!.mqttSubscribe('$username/feeds/${topics[2]}');
-    user!.mqttSubscribe('$username/feeds/${topics[3]}');
-    user!.mqttSubscribe('$username/feeds/${topics[4]}');
+    // using if condition to avoid null check operator
+    if(isFetchDataSuccess){
+      user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+      user!.mqttConnect();
+      user!.mqttSubscribe('$username/feeds/${topics[0]}');
+      user!.mqttSubscribe('$username/feeds/${topics[1]}');
+      user!.mqttSubscribe('$username/feeds/${topics[2]}');
+      user!.mqttSubscribe('$username/feeds/${topics[3]}');
+      user!.mqttSubscribe('$username/feeds/${topics[4]}');
+    }
   }
  
   /*
@@ -409,7 +413,7 @@ class _MainScreenState extends State<MainScreen>{
       Listen any changes from MQTT server and update button 
   */ 
   void getState(){
-    if(mounted== true && !isGetData){
+    if(mounted== true && !isGetData && isFetchDataSuccess){
       user!.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
         final recMess = c![0].payload as MqttPublishMessage;
         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
@@ -506,7 +510,46 @@ class _MainScreenState extends State<MainScreen>{
     setState(() {_isLoading = false;});
 }
   
+  Future<void> fetchHistoryOfFeed(String feedName, DateTime startDate, DateTime endDate) async{
+    // final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName';
+    final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName/data';
+    final response = await https.get(
+      Uri.parse('$url?start=$startDate&end=$endDate'),
+      //  Uri.parse('$url?start=$startDate&end=$endDate'),
+      headers: {
+        'X-AIO-Key': userkey
+      },
+    );
+  // "X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
+  //"X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
+  if (response.statusCode == 200) {
+    // If the server returns a 200 OK response, parse the JSON.
+    final  data  = jsonDecode(response.body);
+    debugPrint(data.toString());
+  } else {
+    // If the server did not return a 200 OK response, throw an exception.
+    throw Exception('Failed to load data from Adafruit IO');
+  }
+  }
   
+  Future<void> fetchUserDataFromFirebase( ) async{
+    try{
+      gotuser = SupportedUser(widget.uid);
+      gotuser!.getUserInfor( 'userName').then((String result){
+        if(result != "Do not have certain data!!!")  setState( () {username = result;}); 
+      }); // add cast to avoid incompatible type String != Future<String>
+      gotuser!.getUserInfor( 'userKey').then((String result){
+        // debugPrint(result);
+          if(result != "Do not have certain data!!!") setState( () {userkey = result;}); 
+      });
+      gotuser!.getUserInfor( 'server').then((String result){
+        // debugPrint(result);
+          if(result != "Do not have certain data!!!") setState( () {server = result;}); 
+      });
+    }catch (e){
+      debugPrint(e.toString());
+    }
+  }
   @override
   void dispose() { 
     super.dispose();

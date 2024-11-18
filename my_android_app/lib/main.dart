@@ -1,16 +1,19 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/home_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
-import 'package:my_android_app/Screens/user_screen.dart';
-import './services/database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:my_android_app/Screens/user_screen.dart';
+// import './services/database.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+  );
   runApp(const MyApp());
 }
 

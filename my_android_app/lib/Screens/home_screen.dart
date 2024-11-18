@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/history_screen.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
@@ -8,6 +8,7 @@ import 'package:my_android_app/Screens/settings_screen.dart';
 // import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/user_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children:  [
-          MainScreen(),
+          MainScreen(uid: '$gotUID'),
           UserScreen(uid: '$gotUID'),
           const SettingsScreen(),
           const ChartScreen(),
@@ -106,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void initVariables(){
-    debugPrint(user.toString());
+    // debugPrint(user.toString());
     gotUID = user!.uid;
   }
 

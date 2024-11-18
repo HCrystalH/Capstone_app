@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
         isLoading = false;
       });
       // Show error
-      showSnackBar(context, res);
+      showSnackBar(context, res,customColor: Colors.red,textColor: Colors.black);
     }
   }
 
@@ -123,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () async {
                   await FirebaseServices().signInWithGoogle();
                   Navigator.pushReplacement(
+                    // ignore: use_build_context_synchronously
                     context,
                     MaterialPageRoute(
                       builder: (context) =>   HomeScreen(userType: 'googleUser',),
@@ -262,6 +263,8 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+
+  
   @override void deactivate() {
     
     passwordController.dispose();
@@ -269,3 +272,4 @@ class _LoginPageState extends State<LoginPage> {
     super.deactivate();
   }
 }
+
