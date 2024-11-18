@@ -97,7 +97,8 @@ class _LoginPageState extends State<LoginPage> {
               textEditingController: passwordController,
               hintText: 'Enter your passord',
               textInputType: TextInputType.text,
-              isPass: false,
+              isPass: true,
+              
             ),
             //   Forgot password 
             const ForgotPassword(),

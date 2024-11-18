@@ -75,7 +75,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     // double width  = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign Up",textAlign: TextAlign.center,)
+        title: const Text(
+          "Create Account",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+          ),
+          selectionColor: Colors.blue,
+        ),
+        backgroundColor:const Color.fromARGB(255, 4, 223, 243),
       ),
       resizeToAvoidBottomInset: false,
       body: GestureDetector(
@@ -135,7 +144,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Already have an account?",style: TextStyle(fontSize: 16),),
+                const Text(
+                  "Already have an account?",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -147,7 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: const Text(
                     " Login",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.red,
+                        fontWeight: FontWeight.bold, color: Colors.green,
                         fontSize: 20
                       ),
                   ),
