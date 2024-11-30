@@ -29,8 +29,8 @@ class MyButtons extends StatelessWidget {
               ),
           child: Text(
             text,
-            style: const TextStyle(
-              fontSize: 20,
+            style: TextStyle(
+              fontSize: MediaQuery.sizeOf(context).width*0.05,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),

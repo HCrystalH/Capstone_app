@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:my_android_app/Authentication/auth.dart';
 import 'package:my_android_app/Screens/home_screen.dart';
 import 'login.dart';
@@ -27,7 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   
   void signUp() async {
     String error = '';
-    if(emailController.text == "" || emailController.text.isValidEmail()){
+    if(emailController.text == "" || emailController.text.isValidEmail() == false){
       error = "Invalid Email";
     }else if(nameController.text == '' || passwordController.text == '' ||
     userKeyController.text == '' || userNameController.text == '' || serverController.text == '')
@@ -75,11 +74,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     // double width  = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Create Account",
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 28,
+            fontSize: MediaQuery.sizeOf(context).height*0.03,
             fontWeight: FontWeight.bold,
           ),
           selectionColor: Colors.blue,
@@ -138,17 +137,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
               isPass: true,
             ),
             
-             const SizedBox(height: 16),
+            SizedBox(height: MediaQuery.sizeOf(context).height*0.005),
             MyButtons(onTap: signUp, text: "Sign Up"),
-            const SizedBox(height: 10),
+            SizedBox(height: MediaQuery.sizeOf(context).height*0.005),
             
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   "Already have an account?",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: MediaQuery.sizeOf(context).height*0.02,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -160,11 +159,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     );
                   },
-                  child: const Text(
+                  child: Text(
                     " Login",
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.green,
-                        fontSize: 20
+                        fontSize:  MediaQuery.sizeOf(context).height*0.025,
                       ),
                   ),
                 )

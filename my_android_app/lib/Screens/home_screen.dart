@@ -6,7 +6,6 @@ import 'package:my_android_app/Screens/history_screen.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/power_screen.dart';
 // import 'package:my_android_app/Screens/main_screen.dart';
-import 'package:my_android_app/Screens/settings_screen.dart';
 // import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/user_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,10 +48,10 @@ class _HomeScreenState extends State<HomeScreen>{
       backgroundColor: const Color.fromARGB(253, 230, 235, 243),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('Manage Home',style:TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 24,
-        )),
+        // title: Text('Manage Home',style:TextStyle(
+        //   fontWeight: FontWeight.bold,
+        //   fontSize: MediaQuery.sizeOf(context).width*0.08,
+        // )),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),
@@ -61,10 +60,9 @@ class _HomeScreenState extends State<HomeScreen>{
         index: _currentIndex,
         children:  [
           MainScreen(uid: '$gotUID',brokerServer: server,brokerUserName:username ,brokerUserKey: userkey),
-          UserScreen(uid: '$gotUID'),
-          // const SettingsScreen(),
           ChartScreen(brokerUserKey: userkey,brokerUserName: username,),
           const PowerConsumptionScreen(),
+          UserScreen(uid: '$gotUID'),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -74,14 +72,6 @@ class _HomeScreenState extends State<HomeScreen>{
             label: "Home"
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "User Profile",
-          ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.settings),
-          //   label: "Settings",
-          // ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: "Chart",
           ),
@@ -89,30 +79,25 @@ class _HomeScreenState extends State<HomeScreen>{
             icon: Icon(Icons.energy_savings_leaf),
             label: "Power Consumption",
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "User Profile",
+          ),
         ],
         selectedItemColor: const Color.fromARGB(255, 121, 180, 137),
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
+        // mouseCursor: MouseCursor.defer,
         onTap: (index){
           // Handle navigation or any other action based on the selected index
           if(mounted == true){
             setState(() {
               _currentIndex = index; 
             }
-             
             );
-            debugPrint('Tapped on item $index');
-            
           }
-          // _pageController.animateToPage(
-          //   _currentIndex, 
-          //   duration: const Duration(milliseconds: 100), 
-          //   curve: Curves.ease
-          // );  
         },
-        
       ),
-     
     );
   }
 

@@ -8,7 +8,7 @@ class PowerConsumptionScreen extends StatefulWidget{
 }
 
 class _ScreenState extends State<PowerConsumptionScreen>{
-  List<ChartData> _chartData = [];
+  final List<ChartData> _chartData = [];
   @override
   void initState() {
     super.initState();
@@ -34,7 +34,13 @@ class _ScreenState extends State<PowerConsumptionScreen>{
               height: MediaQuery.of(context).size.height*0.3,
               child:  SfCartesianChart(
                 tooltipBehavior: TooltipBehavior(enable: true),
-                title: const ChartTitle(text: 'Power Consumption'),
+                title: ChartTitle(
+                  text: 'Power Consumption',
+                  textStyle: TextStyle(
+                    fontSize: MediaQuery.sizeOf(context).width*0.04,
+                    fontWeight: FontWeight.bold
+                  )
+                ),
                 primaryYAxis: const NumericAxis(
                   title: AxisTitle(
                     text:"Power",textStyle: TextStyle(

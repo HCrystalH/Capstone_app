@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:my_android_app/Authentication/auth.dart';
 import 'package:my_android_app/Authentication/google_auth.dart';
 import 'package:my_android_app/Authentication/login.dart';
@@ -44,13 +45,19 @@ class _UserScreenState extends State<UserScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Edit Profile',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: MediaQuery.sizeOf(context).width * 0.07, 
+            fontWeight: FontWeight.bold
+          ),
         ),
       ),
-      body:  GestureDetector(
+      body:  SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Center( 
+      child :GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
           // FocusScope.of(context).unfocus();
@@ -71,7 +78,7 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
                   TextFormField(
                     controller: _listOfController[1],
                     focusNode: _listOfFocusNode[1],
@@ -81,7 +88,7 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
                   TextFormField(
                     controller:  _listOfController[2],
                     focusNode: _listOfFocusNode[2],
@@ -98,7 +105,7 @@ class _UserScreenState extends State<UserScreen> {
                     },
                     onSaved: (newValue) => {_listOfController[2]..text = newValue! },
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
                   TextFormField(
                     controller:  _listOfController[3],
                     focusNode: _listOfFocusNode[3],
@@ -107,7 +114,7 @@ class _UserScreenState extends State<UserScreen> {
                       hintText: "Enter Username",
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
                   TextFormField(
                     controller:  _listOfController[4],
                     focusNode: _listOfFocusNode[4],
@@ -119,7 +126,7 @@ class _UserScreenState extends State<UserScreen> {
                     
                   ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: MediaQuery.sizeOf(context).height*0.025),
                   Row(
                     children: [
                       ElevatedButton(
@@ -127,11 +134,10 @@ class _UserScreenState extends State<UserScreen> {
                           // Handle save changes logic
                           // updateUser (widget.uid);
                           updateUser(widget.uid, isPassWordChange);
-                          
                         },
                         child: const Text('Save Changes'),
                       ),
-                      const SizedBox(width: 20,),
+                      SizedBox(width: MediaQuery.sizeOf(context).width*0.1),
                       ElevatedButton(
                         onPressed: () {
                           logout();
@@ -145,6 +151,8 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ),
       ),
+      ),
+      )
     );
   }
 
@@ -240,7 +248,7 @@ class _UserScreenState extends State<UserScreen> {
     return success;
   }
 
-   void logout() async{
+  void logout() async{
     setState(() {
       isLoading = true;
     });

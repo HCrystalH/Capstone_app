@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:my_android_app/Screens/home_screen.dart';
 import 'package:my_android_app/Screens/settings_screen.dart'; 
 class NavBar extends StatefulWidget{
   const NavBar({super.key});

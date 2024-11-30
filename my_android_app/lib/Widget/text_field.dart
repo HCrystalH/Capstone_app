@@ -32,19 +32,19 @@ class _TextFieldInputState extends State<TextFieldInput> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: TextFormField(
-        style: const TextStyle(fontSize: 20),
+        style: TextStyle(fontSize: MediaQuery.sizeOf(context).height*0.015),
         controller: widget.textEditingController,
         decoration: InputDecoration(
           prefixIcon: Icon(widget.icon, color: Colors.black54),
           hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Colors.black45, fontSize: 18),
+          hintStyle: TextStyle(color: Colors.black45, fontSize: MediaQuery.sizeOf(context).width*0.04),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(10),
           ),
           border: InputBorder.none,
           focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
+            borderSide: const BorderSide(color: Colors.blue, width: 5),
             borderRadius: BorderRadius.circular(30),
           ),
           filled: true,

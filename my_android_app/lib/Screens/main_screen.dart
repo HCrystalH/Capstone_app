@@ -83,8 +83,9 @@ class _MainScreenState extends State<MainScreen> {
       child:SizedBox(
         
       child: _isLoading? const Center(child:  CircularProgressIndicator()) 
-      : Padding(
-        
+      : SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
         padding: const EdgeInsets.only(left: 10,right:10),
           child:  Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,14 +99,12 @@ class _MainScreenState extends State<MainScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Container(
                   decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                  padding:const EdgeInsets.only(left: 20,right: 35),
+                  padding:const EdgeInsets.only(left: 10,right: 35),
                   child:  
                   Row(
-                    
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                  
                       // Motion card
                       dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
                       const SizedBox(width: 10,),
@@ -125,54 +124,74 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
               SizedBox(height:  MediaQuery.sizeOf(context).height/30),
-              Container(
-                decoration:  BoxDecoration(
+
+              // Notification 
+              SafeArea(
+                child: Container(
+                decoration: (notification =='Normal')  ? BoxDecoration(
                   color: Colors.blue,
                   borderRadius: BorderRadius.circular(25),
                   
+                )  : BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(25),
+                  
                 ),
-                // padding:const EdgeInsets.only(left: 20,right: 35) ,
+                padding:const EdgeInsets.only(left: 20,top: 5,right: 35) ,
                 width: MediaQuery.sizeOf(context).width,
                 height: MediaQuery.sizeOf(context).height/15,
                 child:  Center(
-                  child: Text(
-                  '$notification \nThe perceived temperature: $heatIndex',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    
-                    // fontWeight: FontWeight.bold,
+                  child: Column(
+                    children: [
+                      Text(
+                        'Status: $notification',
+                        style: TextStyle(
+                        fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      ),
+                      Text(
+                        'The perceived temperature: $heatIndex',
+                        style: TextStyle(
+                        fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      ),
+                      
+                    ],
                   ),
-                ),
                 ) 
-                
               ),
-
-              SizedBox(height:  MediaQuery.sizeOf(context).height/35),
-              Row(children: [
+              ),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              SafeArea(
+                child: Row(
+                children: [
                 functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
                 const SizedBox(width: 10),
                 functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
-              ],),
-
+              ],
+              ),
+              ),
               SizedBox(height:  MediaQuery.sizeOf(context).height/30),
-              Row(children: [
+              SafeArea(
+                child: Row(children: [
                 functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white), 
 
                 const SizedBox(width: 10),
                 functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
-              
-              ],), 
-          
+              ],
+              ),
+              ),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
             ],
-    
+          
         ),
         
       ),
-            
+      )       
     )
-    
     );
-    // );
   }
 
   Container functionCard(BuildContext context, content, room,String feedName, IconData icon,  Color iconColor, Color backgroundColor) {
@@ -190,20 +209,9 @@ class _MainScreenState extends State<MainScreen> {
     }else if(feedName == 'relay4'){
       switchName = relay("relay4");
     }
-    // if(feedName == 'relay1'){
-    //   switchName = relay1();
-    // }else if(feedName == 'relay2'){
-    //   switchName = relay2();
-    // }else if(feedName == 'relay3'){
-    //   switchName = relay3();
-    // }else if(feedName == 'relay4'){
-    //   switchName = relay4();
-    // }
     return  Container(
-      // width: MediaQuery.sizeOf(context).width/4, // Adjust width as needed
-      // height: MediaQuery.sizeOf(context).height/4, // Adjust height as needed
-      width: 190,
-      height: 250,
+      width: MediaQuery.sizeOf(context).width / 2.2,
+      height: MediaQuery.sizeOf(context).height/3.5,
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(30), // Adjust radius as needed
@@ -221,42 +229,44 @@ class _MainScreenState extends State<MainScreen> {
                 Icon(Icons.wifi, color: iconColor),
               ],
             ),
-          SizedBox(height: MediaQuery.sizeOf(context).height/20),
-          Text(
-            content,
-            
+          SizedBox(height: (MediaQuery.sizeOf(context).height/3.8)*0.15 ),
+          Center(
+            child:Text(
+            content,  
             textAlign: TextAlign.center,
             style:  TextStyle(
-              
-              fontSize: 20,
+              fontSize: MediaQuery.sizeOf(context).width * 0.04,
               color: textColor,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            room,
-            style: TextStyle(
-              fontSize: 16,
-              color: textColor,
-            ),
           ),
-          const Spacer(),
-         
-          Row(
+          Center(
+            child:Text(
+              room,
+              style: TextStyle(
+                fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                color: textColor,
+              ),
+          ),
+          ),
+          SizedBox(height: (MediaQuery.sizeOf(context).height/3.8)*0.25),
+          Center(
+
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
             Text
               (
                 "State",
                 style:  TextStyle(
-                  fontSize: 16,
+                  fontSize: MediaQuery.sizeOf(context).width * 0.04,
                   color: textColor,
                 ),
               ),
               switchName,
-          
-            
             ],
+          ),
           ),
         ],
       ),
@@ -267,36 +277,26 @@ class _MainScreenState extends State<MainScreen> {
 
   SizedBox dataCard(name,data,Icon icon){
     return SizedBox(
-        child: Padding(
-          padding: const EdgeInsets.all(5),
-          child: Row(
-            children: [
-              icon,
-              Column(
-                children:[
-              Text(name),
-              Text(data,
-              style: const TextStyle(
-                color: Color.fromARGB(255, 12, 219, 67),
-              ),),
-                ]
-              )
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Row(
+          children: [
+            icon,
+            Column(
+              children:[
+            Text(name),
+            Text(data,
+            style: const TextStyle(
+              color: Color.fromARGB(255, 12, 219, 67),
+            ),),
+              ]
+            )
+          ],
         ),
+      ),
     );
   }
-  Container screens(name){
-    return Container(
-      height: 40,
-      width: 100,
-      // padding: const EdgeInsets.only(top: 25),
-      padding: const EdgeInsetsDirectional.all(10),
-      decoration: BoxDecoration(color: const Color.fromRGBO(14, 0, 0, 0.49), borderRadius: BorderRadius.circular(20)),
-      child: Text(name,textAlign: TextAlign.center,style: const TextStyle(color:  Color.fromARGB(255, 5, 246, 222)))
-    );
-}
-
+  
   Switch relay(String button){
     int index =0;
     if(button == "relay1") {index =0;}
@@ -378,9 +378,9 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
  
-  void updateNotification() async {
+  // void updateNotification() async {
     
-  }
+  // }
   /*
     Function to fetch data from MQTT server
       Duration: adjustable , default: 500ms
@@ -453,7 +453,7 @@ class _MainScreenState extends State<MainScreen> {
               else if(j == 1){humidData = values[1];}
               else if(j == 2){heatIndex = values[2];}
               else if(j == 3){
-                if(values[3] == '1') {notification = 'Normal';}
+                if(values[3] == '0') {notification = 'Normal';}
                 else {notification = 'Abnormal';}
               }
             }

@@ -22,12 +22,12 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           onTap: () {
             myDialogBox(context);
           },
-          child: const Text(
+          child: Text(
             "Forgot Password?",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Color.fromRGBO(226, 125, 96, 1),
+              fontSize: MediaQuery.sizeOf(context).height*0.02,
+              color: const Color.fromRGBO(226, 125, 96, 1),
             ),
           ),
         ),
@@ -37,85 +37,86 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   void myDialogBox(BuildContext context) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(),
-                      const Text(
-                        "Forgot Your Password",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: "Enter the Email",
-                      hintText: "eg abc@gmail.com",
+                  Container(),
+                  Text(
+                    "Forgot Your Password",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: MediaQuery.sizeOf(context).width*0.05,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                    onPressed: () async {
-                      await auth
-                          .sendPasswordResetEmail(email: emailController.text)
-                          .then((value) {
-                        // if success then show this message
-                        showSnackBar(context,
-                            "We have send you the reset password link to your email id, Please check it");
-                      }).onError((error, stackTrace) {
-                        // if unsuccess then show error message
-                        showSnackBar(context, error.toString());
-                      });
-                      // terminate the dialog after send the forgot password link
+                  IconButton(
+                    onPressed: () {
                       Navigator.pop(context);
-                      // clear the text field
-                      emailController.clear();
                     },
-
-                    // if we remember the password then we can easily login
-                    // if we forget the password then we apply this method
-                    child: const Text(
-                      "Send",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
+                    icon: const Icon(Icons.close),
+                  ),
                 ],
               ),
-            ),
-          );
-        });
+              SizedBox(height: MediaQuery.sizeOf(context).height*0.02),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Enter the Email",
+                  hintText: "Eg: abc@gmail.com",
+                ),
+              ),
+              SizedBox(height: MediaQuery.sizeOf(context).height*0.02),
+              ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                onPressed: () async {
+                  await auth
+                      .sendPasswordResetEmail(email: emailController.text)
+                      .then((value) {
+                    // if success then show this message
+                    showSnackBar(context,
+                        "We have send you the reset password link to your email id, Please check it");
+                  }).onError((error, stackTrace) {
+                    // if unsuccess then show error message
+                    showSnackBar(context, error.toString());
+                  });
+                  // terminate the dialog after send the forgot password link
+                  Navigator.pop(context);
+                  // clear the text field
+                  emailController.clear();
+                },
+
+                // if we remember the password then we can easily login
+                // if we forget the password then we apply this method
+                child: Text(
+                  "Send",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.sizeOf(context).width*0.05,
+                    height: MediaQuery.sizeOf(context).height*0.001,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
