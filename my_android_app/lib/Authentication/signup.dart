@@ -84,6 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           selectionColor: Colors.blue,
         ),
+        centerTitle: true,
         backgroundColor:const Color.fromARGB(255, 4, 223, 243),
       ),
       resizeToAvoidBottomInset: false,

@@ -3,18 +3,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
-import '../services/mqtt_service.dart';
 import 'package:my_android_app/services/database.dart';
+import '../services/mqtt_service.dart';
+// import 'package:my_android_app/services/database.dart';
 
 // ignore: must_be_immutable
 class MainScreen extends StatefulWidget{
-  String uid;
-  MainScreen({super.key,required this.uid});
+  String uid,brokerServer,brokerUserName,brokerUserKey;
+  MainScreen({super.key,required this.uid, required this.brokerServer,required this.brokerUserName, required this.brokerUserKey});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
-class _MainScreenState extends State<MainScreen>{
+class _MainScreenState extends State<MainScreen> {
   
   /*____________________ Declaring Variables  _____________________*/ 
  
@@ -29,23 +30,22 @@ class _MainScreenState extends State<MainScreen>{
   // late String serverDB="", usernameDB="",userkeyDB="";
   
   // String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
-  List<String> topics = ["data","relay1","relay2","relay3","relay4"];
-  // final topics = ["topic0","topic1","topic2","topic3","topic4"];
+  // List<String> topics = ["data","relay1","relay2","relay3","relay4"];
+  final topics = ["topic0","topic1","topic2","topic3","topic4","topic5"];
   MqttHelper? user;
   List<String> values = [];
   List<String> listOfData = [];
-  String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '';
-
+  String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '', heatIndex ='';
+  String notification = '';
   Timer? timer;
-  bool isConnected = false , isGetData = false;
+  bool isConnected = false , isGetData = false, isNormal = false;
   bool _isLoading = true;  // using for loading page
   bool isFetchDataSuccess = false;
   // bool _isLoading = false;
   //[0] : buttonRelay1 , [1]: buttonRelay2 ,...
   List<bool> listOfButtonRelay = [false,false,false,false];
   // final Completer<void> _connectionCompleter = Completer<void>();
-  DateTime startDate = DateTime.parse('2024-11-04T00:00:00Z'); // Start date
-  DateTime endDate = DateTime.parse('2024-11-04T23:59:59Z'); 
+  
   SupportedUser? gotuser;
 
   /*____________________ Declaring Variables END HERE _____________________*/ 
@@ -56,158 +56,121 @@ class _MainScreenState extends State<MainScreen>{
     if(mounted) {super.setState(fn);}
   }
   
-
+  
   @override
   void initState() {
     super.initState();
     // retrieve Username and userkey
     fetchUserDataFromFirebase();
-
     /*Connect and subscribe to feeds in Mqtt server */ 
 
-    Timer(const Duration(seconds: 2), handleToSubscribe);
-    Timer(const Duration(seconds: 1), subscribeToFeeds);
-    Timer(const Duration(seconds: 1),handleToGetState);
-    // Timer(const Duration(seconds: 2), handleToGetState);
-    // fetchHistoryOfFeed("data",startDate,endDate);
-  }
-  void handleToGetState(){
-
-    getStateOneTime();
-    getState();
-  }
-  
-  void handleToSubscribe(){
-    // Callback function when use timer
-    debugPrint(username);
-    debugPrint(server);
-    debugPrint(userkey);
-    if(username == '' || userkey == ''  || server =='') {fetchUserDataFromFirebase();}
-    else if(username != '' && userkey != ''  && server !='') {
-      debugPrint("Ready to subscribe!");
-      setState(() {isFetchDataSuccess = true;} );
+    Timer(const Duration(seconds: 5), handleToSubscribe);
+    if(isFetchDataSuccess == false){
+      // If fail fetch again
+      Timer(const Duration(seconds: 2), fetchUserDataFromFirebase);
+      Timer(const Duration(seconds: 3), handleToSubscribe);
+      getState();
     }
+
+
   }
+
 
   @override
   Widget build(BuildContext context){
-  
-    // return AnimatedBuilder(
-    //   animation: _animationController, 
-    //   builder: (context,child)
-    // {
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child:SizedBox(
-          
-        child: _isLoading? const Center(child:  CircularProgressIndicator()) 
-        : Padding(
-          
-          padding: const EdgeInsets.only(left: 10,right:10),
-            child:  Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Hey, Crystal 👋',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                // Container(
-                //   decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                //   padding:const EdgeInsets.only(left: 20,right: 25),
-                //   child:  Row(
-                  
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                   
-                //     // Motion card
-                //     dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
-                //     // Energy card
-                //     dataCard("Energy", "$energyData kWh",const Icon(Icons.bolt)),
-                //     // Temperature card
-                //     dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
-                //   ],
-                // ),
-                
-                // ),
-
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                    padding:const EdgeInsets.only(left: 20,right: 35),
-                    child:  
-                    Row(
-                      
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child:SizedBox(
+        
+      child: _isLoading? const Center(child:  CircularProgressIndicator()) 
+      : Padding(
+        
+        padding: const EdgeInsets.only(left: 10,right:10),
+          child:  Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // const Text(
+              //   'Hey, Crystal 👋',
+              //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              // ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
+                  padding:const EdgeInsets.only(left: 20,right: 35),
+                  child:  
+                  Row(
                     
-                        // Motion card
-                        dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
-                        const SizedBox(width: 10,),
-                        // Energy card
-                        dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
-                        const SizedBox(width: 10,),
-                        // Temperature card
-                        dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
-                        const SizedBox(width: 10,),
-                        // Voltage card
-                        dataCard("Voltage", "$voltageData V",const Icon(Icons.bolt)),
-                        const SizedBox(width: 10,),
-                        // Current card
-                        dataCard("Current", "$currentData A",const Icon(Icons.amp_stories)),
-                      ],
-                    ),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                  
+                      // Motion card
+                      dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
+                      const SizedBox(width: 10,),
+                      // Energy card
+                      dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
+                      const SizedBox(width: 10,),
+                      // Temperature card
+                      dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
+                      const SizedBox(width: 10,),
+                      // Voltage card
+                      dataCard("Voltage", "$voltageData V",const Icon(Icons.bolt)),
+                      const SizedBox(width: 10,),
+                      // Current card
+                      dataCard("Current", "$currentData A",const Icon(Icons.amp_stories)),
+                    ],
                   ),
                 ),
-
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(children: [
-                      screens("All devices"),
-                      const SizedBox(width: 8),
-                      screens("Bed room"),
-                      const SizedBox(width: 8),
-                      screens("Living room"), 
-                      
-                      const SizedBox(width: 8),
-                      screens("Kitchen"),
+              ),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              Container(
+                decoration:  BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(25),
+                  
+                ),
+                // padding:const EdgeInsets.only(left: 20,right: 35) ,
+                width: MediaQuery.sizeOf(context).width,
+                height: MediaQuery.sizeOf(context).height/15,
+                child:  Center(
+                  child: Text(
+                  '$notification \nThe perceived temperature: $heatIndex',
+                  style: const TextStyle(
+                    fontSize: 18,
                     
-                    ],)
+                    // fontWeight: FontWeight.bold,
                   ),
                 ),
+                ) 
                 
-                SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              ),
 
-                Row(children: [
-                  
-                  
-                  functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
-                  const SizedBox(width: 10),
-                  functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
-                
-                ],),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/35),
+              Row(children: [
+                functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
+                const SizedBox(width: 10),
+                functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
+              ],),
 
-                SizedBox(height:  MediaQuery.sizeOf(context).height/30),
-                Row(children: [
-                  functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white), 
+              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              Row(children: [
+                functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white), 
 
-                  const SizedBox(width: 10),
-                  functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
-                
-                ],), 
-            
-              ],
-      
-          ),
-          
-        ),
+                const SizedBox(width: 10),
+                functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
               
-      )
-      
+              ],), 
+          
+            ],
+    
+        ),
+        
+      ),
+            
+    )
+    
     );
     // );
   }
@@ -395,18 +358,29 @@ class _MainScreenState extends State<MainScreen>{
   }
  
   void subscribeToFeeds(){
+    
     // using if condition to avoid null check operator
     if(isFetchDataSuccess){
-      user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+      // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
+      user = MqttHelper(serverAddress: widget.brokerServer, userName: widget.brokerUserName, userKey: widget.brokerUserKey);
       user!.mqttConnect();
       user!.mqttSubscribe('$username/feeds/${topics[0]}');
       user!.mqttSubscribe('$username/feeds/${topics[1]}');
       user!.mqttSubscribe('$username/feeds/${topics[2]}');
       user!.mqttSubscribe('$username/feeds/${topics[3]}');
       user!.mqttSubscribe('$username/feeds/${topics[4]}');
+      user!.mqttSubscribe('$username/feeds/${topics[5]}');
+      setState(() {isConnected = true;}); 
+      handleToGetState();
+    }else{
+      setState(() {isConnected = false;}); 
+      debugPrint("Fail to subscribe!!!");
     }
   }
  
+  void updateNotification() async {
+    
+  }
   /*
     Function to fetch data from MQTT server
       Duration: adjustable , default: 500ms
@@ -425,6 +399,11 @@ class _MainScreenState extends State<MainScreen>{
             setState(() {
               if(i==0) {tempData = values[i];}
               else if(i == 1) {humidData = values[i];}
+              else if(i == 2) {heatIndex = values[i];}
+              else if(i == 3) {
+                if(values[i] == '0'){ notification = 'Normal';}
+                else if(values[i] == '1'){ notification = 'Abnormal';}
+              }
             });
           
           }
@@ -449,17 +428,42 @@ class _MainScreenState extends State<MainScreen>{
           if(pt == '0' && listOfButtonRelay[3] != false){  {setState(() => listOfButtonRelay[3] = false);}}
           else if(pt == '1' && listOfButtonRelay[3] != true){ {setState(() => listOfButtonRelay[3] = true);}
         }
-      }}); 
+        }else if(c[0].topic=='$username/feeds/${topics[5]}'){
+          debugPrint(pt.toString());
+          values = pt.split(',');
+          energyData = values[2];
+        }
+    }
+    ); 
   }
 }  
 
   Future<void> getStateOneTime() async {
   // await _connectionCompleter.future; // Wait for the connection to be established
 
-    for (int i = 0; i <= 4; i++) {
+    for (int i = 0; i <= 5; i++) {
       String data =  await fetchData(topics[i]);
       debugPrint(data);
       setState(() {
+        if(data != "Failed to fetch Data"){
+          if(i == 0){
+            values = data.split(',');
+            for(int j = 0; j<values.length; j++){
+              if(j == 0) {tempData = values[0];}
+              else if(j == 1){humidData = values[1];}
+              else if(j == 2){heatIndex = values[2];}
+              else if(j == 3){
+                if(values[3] == '1') {notification = 'Normal';}
+                else {notification = 'Abnormal';}
+              }
+            }
+          }
+          else if(i ==5){
+            values = data.split(',');
+            energyData = values[2];
+            debugPrint("Power Consumption: $energyData");
+          }
+        }
         if (data == '0') {
           switch (i) {
             case 1:
@@ -498,11 +502,10 @@ class _MainScreenState extends State<MainScreen>{
               listOfButtonRelay[3] = true;
               break;
           }
-        }else{
-          values = data.split(',');
-          tempData = values[0];
-          humidData = values[1];
         }
+        
+        
+        
       });
       // debugPrint(listOfButtonRelay[i-1].toString());
     }
@@ -510,50 +513,63 @@ class _MainScreenState extends State<MainScreen>{
     setState(() {_isLoading = false;});
 }
   
-  Future<void> fetchHistoryOfFeed(String feedName, DateTime startDate, DateTime endDate) async{
-    // final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName';
-    final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName/data';
-    final response = await https.get(
-      Uri.parse('$url?start=$startDate&end=$endDate'),
-      //  Uri.parse('$url?start=$startDate&end=$endDate'),
-      headers: {
-        'X-AIO-Key': userkey
-      },
-    );
-  // "X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  //"X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  if (response.statusCode == 200) {
-    // If the server returns a 200 OK response, parse the JSON.
-    final  data  = jsonDecode(response.body);
-    debugPrint(data.toString());
-  } else {
-    // If the server did not return a 200 OK response, throw an exception.
-    throw Exception('Failed to load data from Adafruit IO');
+  void handleToGetState() async {
+    if(isConnected){
+      getStateOneTime();
+      getState();
+    }else{
+      debugPrint("Not connected to get Data!!!");
+    }
   }
-  }
+  void handleToSubscribe(){
+
+    // Data passed from HomeScreen
+    if(widget.brokerServer != "" && widget.brokerUserName != '' && widget.brokerUserKey != ''){ 
+      setState(() {isFetchDataSuccess = true;}); 
+      subscribeToFeeds();
+    }
   
+  }
+ 
   Future<void> fetchUserDataFromFirebase( ) async{
+    
     try{
       gotuser = SupportedUser(widget.uid);
       gotuser!.getUserInfor( 'userName').then((String result){
-        if(result != "Do not have certain data!!!")  setState( () {username = result;}); 
+        if(result != "Do not have certain data!!!") {
+          setState( () {
+            username = result;
+            widget.brokerUserName = result;
+          }); 
+        }
       }); // add cast to avoid incompatible type String != Future<String>
       gotuser!.getUserInfor( 'userKey').then((String result){
         // debugPrint(result);
-          if(result != "Do not have certain data!!!") setState( () {userkey = result;}); 
+          if(result != "Do not have certain data!!!"){ 
+            setState( () {
+              userkey = result;
+              widget.brokerUserKey = userkey;
+            }); 
+
+          }
       });
       gotuser!.getUserInfor( 'server').then((String result){
         // debugPrint(result);
-          if(result != "Do not have certain data!!!") setState( () {server = result;}); 
+          if(result != "Do not have certain data!!!") {setState( () {
+            server = result;
+            widget.brokerServer = server;
+          }); }
       });
     }catch (e){
       debugPrint(e.toString());
     }
   }
+  
   @override
   void dispose() { 
     super.dispose();
     timer?.cancel();
+    
   }
   
 }

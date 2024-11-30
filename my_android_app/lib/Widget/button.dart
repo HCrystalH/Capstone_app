@@ -19,12 +19,14 @@ class MyButtons extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: const ShapeDecoration(
+            
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
-                  Radius.circular(30),
+                  Radius.circular(20),
                 ),
               ),
-              color: Colors.blue),
+              color: Color.fromRGBO(232, 168, 124, 1)
+              ),
           child: Text(
             text,
             style: const TextStyle(

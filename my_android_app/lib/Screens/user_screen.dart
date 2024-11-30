@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_android_app/Authentication/auth.dart';
+import 'package:my_android_app/Authentication/google_auth.dart';
 import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Widget/snack_bar.dart';
 
@@ -14,15 +16,15 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  // final CollectionReference _items = FirebaseFirestore.instance.collection('users');
   final List<TextEditingController> _listOfController = [];
   final List<FocusNode> _listOfFocusNode = [];
-  /*List of FocusNode supported for able to tap to empty space*/ 
-  /*Focus Node END HERE*/ 
-
+  final AuthService _user = AuthService();
+  final FirebaseServices _googleUser = FirebaseServices();
+  
   String gotUserName='', gotUserPassword='', gotServer='', gotUserAccount='', gotUserKey='';
   bool isLoading = true; // To track loading state
   bool isPassWordChange = false;
+
   @override
   void initState() {
     super.initState();
@@ -118,15 +120,27 @@ class _UserScreenState extends State<UserScreen> {
                   ),
 
                   const SizedBox(height: 32),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Handle save changes logic
-                      // updateUser (widget.uid);
-                      updateUser(widget.uid, isPassWordChange);
-                      
-                    },
-                    child: const Text('Save Changes'),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle save changes logic
+                          // updateUser (widget.uid);
+                          updateUser(widget.uid, isPassWordChange);
+                          
+                        },
+                        child: const Text('Save Changes'),
+                      ),
+                      const SizedBox(width: 20,),
+                      ElevatedButton(
+                        onPressed: () {
+                          logout();
+                        },
+                        child: const Text('Log Out'),
+                      ),
+                    ]
                   ),
+                  
                 ],
               ),
             ),
@@ -224,6 +238,21 @@ class _UserScreenState extends State<UserScreen> {
     });
     debugPrint("changed: $success");
     return success;
+  }
+
+   void logout() async{
+    setState(() {
+      isLoading = true;
+    });
+    _user.logOut();
+    _googleUser.googleSignOut();
+    
+    // Navigate user to Login screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
+      ),
+    );
   }
 
   @override
