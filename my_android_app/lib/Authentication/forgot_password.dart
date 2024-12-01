@@ -96,6 +96,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     showSnackBar(context, error.toString());
                   });
                   // terminate the dialog after send the forgot password link
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                   // clear the text field
                   emailController.clear();

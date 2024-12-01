@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       });
       
       // Navigate user to home screen
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) =>  HomeScreen(userType: 'default',),
@@ -57,6 +58,7 @@ class _LoginPageState extends State<LoginPage> {
         isLoading = false;
       });
       // Show error
+      // ignore: use_build_context_synchronously
       showSnackBar(context, res,customColor: Colors.red,textColor: Colors.black);
     }
   }

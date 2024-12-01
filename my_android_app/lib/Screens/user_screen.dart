@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 import 'package:my_android_app/Authentication/auth.dart';
 import 'package:my_android_app/Authentication/google_auth.dart';
 import 'package:my_android_app/Authentication/login.dart';
@@ -204,6 +203,7 @@ class _UserScreenState extends State<UserScreen> {
       bool show = false;
       if(isPassWordChange == true){
         debugPrint("UPDATING PASSWORD!!!");
+        // ignore: use_build_context_synchronously
         showSnackBar(context, "Updating Password ! Please wait a few seconds",customColor:const Color.fromARGB(255, 4, 223, 243),textColor: Colors.white);
         await userRef.update(updatedPassword);
         show = await _changePassword(userRef);
@@ -223,6 +223,7 @@ class _UserScreenState extends State<UserScreen> {
       showSnackBar(context,e.toString(),customColor: Colors.red,textColor: Colors.black);
     }
   }
+  
   Future<bool> _changePassword(DocumentReference userRef) async{
     bool success = false;
     //Create an instance of the current user.

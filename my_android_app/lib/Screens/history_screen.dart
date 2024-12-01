@@ -240,7 +240,7 @@ Widget build(BuildContext context) {
               primaryYAxis: const NumericAxis(
                 maximum: 100, 
                 minimum: 0,
-                title: const AxisTitle(
+                title: AxisTitle(
                   alignment: ChartAlignment.far
                 ),
               ),
