@@ -24,7 +24,7 @@ class _UserScreenState extends State<UserScreen> {
   String gotUserName='', gotUserPassword='', gotServer='', gotUserAccount='', gotUserKey='';
   bool isLoading = true; // To track loading state
   bool isPassWordChange = false;
-
+  bool isDataChange = false;
   @override
   void initState() {
     super.initState();
@@ -75,6 +75,11 @@ class _UserScreenState extends State<UserScreen> {
                       labelText: "Name",
                       hintText: "Enter Name",
                     ),
+                    onChanged: (value){
+                      if(_listOfController[0].text != gotUserName){
+                        isDataChange = true;
+                      }
+                    },
                   ),
 
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
@@ -85,6 +90,11 @@ class _UserScreenState extends State<UserScreen> {
                       labelText: "Broker Server",
                       hintText: "Enter Broker Server",
                     ),
+                    onChanged: (value){
+                      if(_listOfController[1].text != gotServer){
+                        isDataChange = true;
+                      }
+                    },
                   ),
 
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
@@ -122,7 +132,11 @@ class _UserScreenState extends State<UserScreen> {
                       hintText: "Enter Key",
                     ),
                     obscureText: false,
-                    
+                    onChanged: (value){
+                      if(_listOfController[4].text != gotUserKey){
+                        isDataChange = true;
+                      }
+                    },
                   ),
 
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.025),
@@ -208,7 +222,6 @@ class _UserScreenState extends State<UserScreen> {
         await userRef.update(updatedPassword);
         show = await _changePassword(userRef);
         // user.logOut();
-      
       }
       if(show){
         // ignore: use_build_context_synchronously

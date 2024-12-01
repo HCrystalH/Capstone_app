@@ -22,7 +22,7 @@ class MqttHelper {
   }
   
   // Methods
-  void mqttConnect() async{
+  void mqttConnect(String clientID) async{
     client.logging(on: false);
     client.keepAlivePeriod = 60;
     client.onDisconnected = onDisconnected;
@@ -35,7 +35,7 @@ class MqttHelper {
 
     final connMess = MqttConnectMessage()
       .authenticateAs(_userName, _userKey)
-      .withClientIdentifier('FLUTTER_CLIENT')
+      .withClientIdentifier(clientID)
       .withWillTopic('willtopic') 
       .withWillMessage('My Will message')
       .startClean() 

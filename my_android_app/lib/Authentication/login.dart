@@ -95,11 +95,12 @@ class _LoginPageState extends State<LoginPage> {
       SafeArea(
           child: SizedBox(
           child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height:height/15),
             Center(
               child: SafeArea(
+                minimum: const EdgeInsets.only(left:20, right:20),
                 child: Text("Welcome to Your Smart Home",
                   style: TextStyle(
                     fontSize: MediaQuery.sizeOf(context).width*0.065,
@@ -107,10 +108,11 @@ class _LoginPageState extends State<LoginPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              )
+              ),
             ),
             SizedBox(height: height/60),
             SafeArea(
+              
               child: Center(
               child: Text("Control Your Home with Ease",
                 style: TextStyle(
@@ -122,22 +124,26 @@ class _LoginPageState extends State<LoginPage> {
               )
               )
             ),
-            SafeArea(child: TextFieldInput(
-              icon: Icons.person,
-              textEditingController: emailController,
-              hintText: 'Enter your email',
-              textInputType: TextInputType.text),
+            SafeArea(
+              maintainBottomViewPadding: true,
+              child: TextFieldInput(
+                icon: Icons.person,
+                textEditingController: emailController,
+                hintText: 'Enter your email',
+                textInputType: TextInputType.text
+              ),
             ),
            
             SizedBox(height: height/60),
             SafeArea(
-            child: TextFieldInput(
-              icon: Icons.lock,
-              textEditingController: passwordController,
-              hintText: 'Enter your passord',
-              textInputType: TextInputType.text,
-              isPass: true, 
-            ),
+              maintainBottomViewPadding: true,
+              child: TextFieldInput(
+                icon: Icons.lock,
+                textEditingController: passwordController,
+                hintText: 'Enter your passord',
+                textInputType: TextInputType.text,
+                isPass: true, 
+              ),
             ),
             //   Forgot password 
             const ForgotPassword(),

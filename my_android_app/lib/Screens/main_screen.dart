@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
+// import 'package:my_android_app/Authentication/login.dart';
+import 'package:vibration/vibration.dart';
 import 'package:my_android_app/services/database.dart';
 import '../services/mqtt_service.dart';
 // import 'package:my_android_app/services/database.dart';
@@ -26,8 +28,6 @@ class _MainScreenState extends State<MainScreen> {
   // // String username = 'kienpham';
   // String username = 'HVVH';
   // String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
-
-  // late String serverDB="", usernameDB="",userkeyDB="";
   
   // String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
   // List<String> topics = ["data","relay1","relay2","relay3","relay4"];
@@ -71,8 +71,6 @@ class _MainScreenState extends State<MainScreen> {
       Timer(const Duration(seconds: 3), handleToSubscribe);
       getState();
     }
-
-
   }
 
 
@@ -96,90 +94,105 @@ class _MainScreenState extends State<MainScreen> {
               // ),
               const SizedBox(height: 16),
               SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                  padding:const EdgeInsets.only(left: 10,right: 35),
-                  child:  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      // Motion card
-                      dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
-                      const SizedBox(width: 10,),
-                      // Energy card
-                      dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
-                      const SizedBox(width: 10,),
-                      // Temperature card
-                      dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
-                      const SizedBox(width: 10,),
-                      // Voltage card
-                      dataCard("Voltage", "$voltageData V",const Icon(Icons.bolt)),
-                      const SizedBox(width: 10,),
-                      // Current card
-                      dataCard("Current", "$currentData A",const Icon(Icons.amp_stories)),
-                    ],
-                  ),
+                width: MediaQuery.sizeOf(context).width,
+                decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
+                // padding:const EdgeInsets.only(left:8, right: 15),
+                child:  
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // mainAxisSize: MainAxisSize.max,
+                  children: [
+                    // Motion card
+                    dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
+              
+                    // Temperature card
+                    dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
+
+                    // Power consumption card
+                    dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
+                  ],
                 ),
               ),
-              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              ),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/60),
 
               // Notification 
               SafeArea(
+                maintainBottomViewPadding: true,
                 child: Container(
                 decoration: (notification =='Normal')  ? BoxDecoration(
-                  color: Colors.blue,
+                  color: const Color.fromRGBO(211, 237, 218, 1),
                   borderRadius: BorderRadius.circular(25),
                   
                 )  : BoxDecoration(
-                  color: Colors.red,
+                  color: const Color.fromRGBO(248, 215, 218, 1),
                   borderRadius: BorderRadius.circular(25),
-                  
                 ),
-                padding:const EdgeInsets.only(left: 20,top: 5,right: 35) ,
+                padding:const EdgeInsets.only(left: 20,top: 10,right: 30,bottom: 10) ,
                 width: MediaQuery.sizeOf(context).width,
-                height: MediaQuery.sizeOf(context).height/15,
-                child:  Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        'Status: $notification',
-                        style: TextStyle(
-                        fontSize: MediaQuery.sizeOf(context).width * 0.04,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      ),
-                      Text(
-                        'The perceived temperature: $heatIndex',
-                        style: TextStyle(
-                        fontSize: MediaQuery.sizeOf(context).width * 0.04,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      ),
-                      
-                    ],
-                  ),
+                height: MediaQuery.sizeOf(context).height/13,
+                child:  Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'The perceived temperature: ',
+                          style: TextStyle(
+                            fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),  
+                        Text(
+                          '$heatIndex°C',
+                          style: TextStyle(
+                            fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                            fontWeight: FontWeight.bold,
+                            color:(notification == 'Normal') ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Status: ',
+                          style: TextStyle(
+                          fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        ),    
+                        Text(
+                          notification,
+                          style: TextStyle(
+                            fontSize: MediaQuery.sizeOf(context).width * 0.04,
+                            fontWeight: FontWeight.bold,
+                            color: (notification == 'Normal') ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ) 
               ),
               ),
-              SizedBox(height:  MediaQuery.sizeOf(context).height/30),
+              SizedBox(height:  MediaQuery.sizeOf(context).height/60),
               SafeArea(
                 child: Row(
                 children: [
-                functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.white,Colors.blue), 
-                const SizedBox(width: 10),
-                functionCard(context, "Air Condition", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
+                functionCard(context,"Smart Lightning","Bedroom",'relay1',Icons.lightbulb_outline, Colors.black,const Color.fromRGBO(255, 110, 182, 0.4)), 
+                SizedBox(width: MediaQuery.sizeOf(context).width/30),
+                functionCard(context, "Air Conditioner", "Living Room",'relay2', Icons.air_outlined, Colors.black,const Color.fromARGB(255, 4, 223, 243)),
               ],
               ),
               ),
               SizedBox(height:  MediaQuery.sizeOf(context).height/30),
               SafeArea(
                 child: Row(children: [
-                functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.orangeAccent,Colors.white), 
+                functionCard(context,"Monitor Sensor","Kitchen",'relay3',Icons.thermostat, Colors.white,const Color.fromRGBO(246, 130, 69, 1)), 
 
-                const SizedBox(width: 10),
-                functionCard(context, "Air Condition", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
+                SizedBox(width: MediaQuery.sizeOf(context).width/30),
+                functionCard(context, "Air Conditioner", "Bed Room", 'relay4',Icons.air_outlined, Colors.white,const Color.fromARGB(255, 109, 4, 125)),
               ],
               ),
               ),
@@ -197,7 +210,7 @@ class _MainScreenState extends State<MainScreen> {
   Container functionCard(BuildContext context, content, room,String feedName, IconData icon,  Color iconColor, Color backgroundColor) {
     Switch switchName = relay("relay1");
     Color textColor = Colors.white;
-    if(room =="Living Room"|| room == "Kitchen"){
+    if(room =="Living Room"|| room == "Bedroom"){
       textColor = Colors.black;
     }
     if(feedName == 'relay1'){
@@ -275,19 +288,28 @@ class _MainScreenState extends State<MainScreen> {
   );
   } 
 
-  SizedBox dataCard(name,data,Icon icon){
+  SizedBox dataCard(name,data,Icon icon){ 
     return SizedBox(
       child: Padding(
-        padding: const EdgeInsets.all(5),
+        padding: const EdgeInsets.all(10),
         child: Row(
           children: [
             icon,
+            SizedBox(width: MediaQuery.sizeOf(context).width*0.01,),
             Column(
               children:[
-            Text(name),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: MediaQuery.sizeOf(context).width*0.035,
+                fontWeight: FontWeight.bold,
+              )
+            ),
             Text(data,
-            style: const TextStyle(
-              color: Color.fromARGB(255, 12, 219, 67),
+            style: TextStyle(
+              fontSize: MediaQuery.sizeOf(context).width*0.04,
+              fontWeight: FontWeight.bold,
+              color: const Color.fromARGB(255, 12, 219, 67),
             ),),
               ]
             )
@@ -323,7 +345,7 @@ class _MainScreenState extends State<MainScreen> {
       }},
       activeColor: Colors.white,
       activeTrackColor: Colors.green,
-      inactiveTrackColor: Colors.redAccent ,
+      inactiveTrackColor: const Color.fromRGBO(255, 0, 0, 1) ,
       inactiveThumbColor: Colors.white,
     );
   }
@@ -357,13 +379,14 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
  
-  void subscribeToFeeds(){
+  void subscribeToFeeds() async{
     
     // using if condition to avoid null check operator
     if(isFetchDataSuccess){
+      String clientID = widget.uid.substring(1,11);
       // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
       user = MqttHelper(serverAddress: widget.brokerServer, userName: widget.brokerUserName, userKey: widget.brokerUserKey);
-      user!.mqttConnect();
+      user!.mqttConnect(clientID);
       user!.mqttSubscribe('$username/feeds/${topics[0]}');
       user!.mqttSubscribe('$username/feeds/${topics[1]}');
       user!.mqttSubscribe('$username/feeds/${topics[2]}');
@@ -378,9 +401,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
  
-  // void updateNotification() async {
-    
-  // }
   /*
     Function to fetch data from MQTT server
       Duration: adjustable , default: 500ms
@@ -392,7 +412,7 @@ class _MainScreenState extends State<MainScreen> {
         final recMess = c![0].payload as MqttPublishMessage;
         final pt = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
         if(c[0].topic=='$username/feeds/${topics[0]}'){
-          debugPrint(pt.toString());
+          // debugPrint(pt.toString());
           values = pt.split(',');
           for(int i=0; i < values.length;i++){
             listOfData.add(values[i]);
@@ -402,10 +422,12 @@ class _MainScreenState extends State<MainScreen> {
               else if(i == 2) {heatIndex = values[i];}
               else if(i == 3) {
                 if(values[i] == '0'){ notification = 'Normal';}
-                else if(values[i] == '1'){ notification = 'Abnormal';}
+                else if(values[i] == '1'){
+                  notification = 'Abnormal';
+                  Vibration.vibrate(duration: 500);
+                }
               }
             });
-          
           }
           debugPrint("temp: $tempData" );
           debugPrint("Humi: $humidData" );
@@ -428,10 +450,16 @@ class _MainScreenState extends State<MainScreen> {
           if(pt == '0' && listOfButtonRelay[3] != false){  {setState(() => listOfButtonRelay[3] = false);}}
           else if(pt == '1' && listOfButtonRelay[3] != true){ {setState(() => listOfButtonRelay[3] = true);}
         }
-        }else if(c[0].topic=='$username/feeds/${topics[5]}'){
-          debugPrint(pt.toString());
+        }
+        else if(c[0].topic=='$username/feeds/${topics[5]}'){
           values = pt.split(',');
-          energyData = values[2];
+          debugPrint(values.toString());
+          for(int i=0; i< values.length;i++){
+            if(i == 2){
+              setState(() =>energyData = values[i]);
+            }
+          }
+          debugPrint("Power Consumption: $energyData");
         }
     }
     ); 
@@ -447,6 +475,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         if(data != "Failed to fetch Data"){
           if(i == 0){
+            // Topic 0
             values = data.split(',');
             for(int j = 0; j<values.length; j++){
               if(j == 0) {tempData = values[0];}
@@ -459,6 +488,7 @@ class _MainScreenState extends State<MainScreen> {
             }
           }
           else if(i ==5){
+            // Topic 5
             values = data.split(',');
             energyData = values[2];
             debugPrint("Power Consumption: $energyData");
@@ -503,9 +533,6 @@ class _MainScreenState extends State<MainScreen> {
               break;
           }
         }
-        
-        
-        
       });
       // debugPrint(listOfButtonRelay[i-1].toString());
     }

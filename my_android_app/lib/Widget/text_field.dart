@@ -33,7 +33,10 @@ class _TextFieldInputState extends State<TextFieldInput> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: TextFormField(
-        style: TextStyle(fontSize: MediaQuery.sizeOf(context).height*0.015),
+        style: TextStyle(
+          fontSize: MediaQuery.sizeOf(context).width*0.04,
+          height: MediaQuery.sizeOf(context).height*0.0015
+        ),
         controller: widget.textEditingController,
         decoration: InputDecoration(
           prefixIcon: Icon(widget.icon, color: Colors.black54),
