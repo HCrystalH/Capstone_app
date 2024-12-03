@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:http/http.dart' as https;
@@ -31,13 +30,12 @@ class _ChartScreenState extends State<ChartScreen> {
   @override
   void initState(){
     startDate = endDate?.subtract(const Duration(days: 1));
-    // Timer(const Duration(seconds: 5),supportFunction);
+    Timer(const Duration(seconds: 5),supportFunction);
     // Timer.periodic(const Duration(seconds: 60), fetchHistoryOfFeed);
-  
-
     super.initState();
-    genData();
-    addTempData();
+    // genData();
+    // addTempData();
+  
   }
   void addTempData(){
     for(int i = 0 ; i < 30; i++){
@@ -118,7 +116,11 @@ class _ChartScreenState extends State<ChartScreen> {
         if(i == 0 ){ temp = double.tryParse(valueParts[0]);}
         else if(i == 1){humi  = double.tryParse(valueParts[1]);}
       }
-      DateTime createdAt = DateTime.parse(item['created_at']); // Parse created_at to DateTime
+      DateTime createdAt = DateTime.parse(item['created_at']).toLocal(); // Parse created_at to DateTime
+      // createdAt = createdAt.add( const Duration(hours: 7));
+      
+      // creaeAt
+      
       // debugPrint("Time :" + createdAt.toString());
       _temperatureData.add(ChartData(createdAt, temp));
       _humiData.add(ChartData(createdAt, humi));
@@ -159,13 +161,15 @@ Widget build(BuildContext context) {
     body: SingleChildScrollView(
       child: Column(
         children: [
+          // Temperature Chart
           SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          // Temperature Chart
+        
           child:SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: 450,
             child: SfCartesianChart(
+              
               tooltipBehavior: TooltipBehavior(enable: true),
               title: const ChartTitle(
                 text: 'Temperature Chart',
@@ -174,27 +178,33 @@ Widget build(BuildContext context) {
                   color: Colors.red,
                 ),
               ),
-              primaryXAxis: 
-                 DateTimeAxis(
-                    title: const AxisTitle(
-                      text: 'Time',
-                      alignment: ChartAlignment.far,
-                    ),
-                    minimum: startDate,
-                    maximum: endDate,
-                    interval: 1.5,
-                    dateFormat: DateFormat.Hm(),
-                  ),
+              primaryXAxis: DateTimeAxis(
+                title:  const AxisTitle(
+                  text: 'Time',
+                  alignment: ChartAlignment.far,
+                  
+                ),
+                minimum: startDate?.add(const Duration(hours:7)),
+                maximum: endDate?.add(const Duration(hours:7)),
+                // initialVisibleMinimum: startDate,
+                interval: 3,
+                edgeLabelPlacement: EdgeLabelPlacement.shift,
+                dateFormat: DateFormat('HH:mm')
+              ),
                
               enableAxisAnimation: true,
               enableMultiSelection: true,
               primaryYAxis: const NumericAxis(
+                labelFormat: '{value}°C',
                 title: AxisTitle(
-                  text: '°C',
+                  // text: '°C',
+                  textStyle: TextStyle(
+                    color: Colors.red
+                  ),
                   alignment: ChartAlignment.far,
                 ),
                 minimum: 0,
-                maximum: 100,
+                maximum: 50,
               ),
               series: <CartesianSeries>[
                 LineSeries<ChartData, DateTime>(
@@ -206,6 +216,7 @@ Widget build(BuildContext context) {
                   markerSettings: const MarkerSettings(
                     isVisible: true,
                   ),
+                  name: 'Temperature',
                 ),
               ],
             ),
@@ -217,11 +228,12 @@ Widget build(BuildContext context) {
             scrollDirection: Axis.horizontal,
             child: SizedBox(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.5,
+            height: 450,
             child: SfCartesianChart(
+              
               tooltipBehavior: TooltipBehavior(enable: true),
               title: const ChartTitle(
-                text: 'Humidity Chart',
+                text: 'Relative Humidity Chart',
                 textStyle: TextStyle(
                   color: Colors.blue,
                   fontWeight: FontWeight.bold,
@@ -234,13 +246,18 @@ Widget build(BuildContext context) {
                 ),
                 minimum: startDate,
                 maximum: endDate,
-                interval: 1.5,
+                interval: 1,
                 dateFormat: DateFormat.Hm(),
               ),
-              primaryYAxis: const NumericAxis(
+              primaryYAxis:  const NumericAxis(
+                labelFormat: '{value}%',
                 maximum: 100, 
                 minimum: 0,
                 title: AxisTitle(
+                  // text:'%',
+                  textStyle: TextStyle(
+                    color: Colors.blue
+                  ),
                   alignment: ChartAlignment.far
                 ),
               ),
@@ -249,8 +266,9 @@ Widget build(BuildContext context) {
                   dataSource: _humiData,
                   xValueMapper: (ChartData data, _) => data.date,
                   yValueMapper: (ChartData data, _) => data.value,
-                  pointColorMapper: (ChartData data, _) => getColor(data.value, "humidity"),
+                  // pointColorMapper: (ChartData data, _) => getColor(data.value, "humidity"),
                   markerSettings: const MarkerSettings(isVisible: true),
+                  name: 'Humidity',
                 ),
               ],
             ),
@@ -258,37 +276,43 @@ Widget build(BuildContext context) {
           ),
           // Date Range TextField
           SizedBox(
-            width: MediaQuery.of(context).size.width *0.8,
+            width: MediaQuery.of(context).size.width *0.65,
+            // height: MediaQuery.of(context).size.height*0.2,
+            child: Center(
             child: TextField(
-              textAlign: TextAlign.left,
+              
+              textAlign: TextAlign.center,
               readOnly: true,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.red,
+                fontSize: MediaQuery.sizeOf(context).width*0.05,
+                height: MediaQuery.sizeOf(context).height*0.001
               ),
               decoration: InputDecoration(
                 hintText: (startDate == null && endDate == null)
                     ? 'Select a date range'
                     : '\tFrom: ${startDate != null ? startDate!.toLocal().toString().split(' ')[0] : ''} '
                       '\tTo: ${endDate != null ? endDate!.toLocal().toString().split(' ')[0] : ''}',
-                hintStyle: const TextStyle(
-                  fontSize: 16,
+                hintStyle: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width*0.03,
                   color: Colors.green,
-                  fontWeight: FontWeight.bold,
+                  // fontWeight: FontWeight.bold,
                 ),
+                filled: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
+                  borderSide: BorderSide(
                     color: Colors.green,
-                    width: 5.0
+                    width: MediaQuery.sizeOf(context).width*0.1
                   ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(
-                    color: Colors.green, // Color when enabled
-                    width: 5.0,
-                  ),
-                ),
+                // enabledBorder: OutlineInputBorder(
+                //   borderRadius: BorderRadius.circular(8.0),
+                //   borderSide: const BorderSide(
+                //     color: Colors.green, // Color when enabled
+                //     width: 5.0,
+                //   ),
+                // ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
@@ -296,20 +320,15 @@ Widget build(BuildContext context) {
                     width: 2.0,
                   ),
                 ),
-                contentPadding: const EdgeInsets.fromLTRB(30, 15, 0, 15),
+                contentPadding: const EdgeInsets.fromLTRB(10, 20, 20, 15),
               ),
               
               onTap: () => selectDateRange(context),
             ),
           ),
-          // Apply Button
-          // ElevatedButton(
-          //   onPressed: () {
-          //     debugPrint(startDate.toString());
-          //     debugPrint(endDate.toString());
-          //   },
-          //   child: const Text('Apply change'),
-          // ),
+          ),
+        
+          SizedBox(height:MediaQuery.sizeOf(context).height*0.02),
         ],
       ),
     ),
@@ -318,9 +337,12 @@ Widget build(BuildContext context) {
 
 }
 
+
+
 class ChartData{
   final DateTime date;
   dynamic value;
-
+  
   ChartData(this.date, this.value);
+  
 }

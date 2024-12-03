@@ -1,16 +1,12 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:my_android_app/Screens/history_screen.dart';
 import 'package:my_android_app/Screens/main_screen.dart';
 import 'package:my_android_app/Screens/power_screen.dart';
-// import 'package:my_android_app/Screens/main_screen.dart';
-// import 'package:my_android_app/Authentication/login.dart';
 import 'package:my_android_app/Screens/user_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:my_android_app/services/database.dart';
-
+import 'package:flutter/services.dart';
 
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
@@ -37,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen>{
     debugPrint(widget.userType);
     super.initState();
     initVariables();  // get UID
-
+    
     fetchUserDataFromFirebase();
     Timer(const Duration(seconds: 1), handleToSubscribe);
   }
@@ -52,8 +48,9 @@ class _HomeScreenState extends State<HomeScreen>{
         //   fontWeight: FontWeight.bold,
         //   fontSize: MediaQuery.sizeOf(context).width*0.08,
         // )),
+        toolbarHeight: MediaQuery.sizeOf(context).height*0.01,
         centerTitle: true,
-        backgroundColor: Colors.blueAccent,
+        // backgroundColor: Colors.blueAccent,
       ),
       body:
         IndexedStack(
@@ -87,12 +84,27 @@ class _HomeScreenState extends State<HomeScreen>{
         selectedItemColor: const Color.fromARGB(255, 121, 180, 137),
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
+        
         // mouseCursor: MouseCursor.defer,
         onTap: (index){
           // Handle navigation or any other action based on the selected index
           if(mounted == true){
             setState(() {
               _currentIndex = index; 
+              if(index == 1 || index == 2){
+                SystemChrome.setPreferredOrientations([
+                  DeviceOrientation.portraitUp,
+                  DeviceOrientation.portraitDown,
+                  DeviceOrientation.landscapeLeft,
+                  DeviceOrientation.landscapeRight,
+                  
+                ]);
+              }
+              if(index == 0 || index == 3){
+                SystemChrome.setPreferredOrientations([
+                  DeviceOrientation.portraitUp,
+                ]);
+              }
             }
             );
           }

@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
-// import 'package:my_android_app/Authentication/login.dart';
 import 'package:vibration/vibration.dart';
 import 'package:my_android_app/services/database.dart';
 import '../services/mqtt_service.dart';
-// import 'package:my_android_app/services/database.dart';
+import 'package:flutter/services.dart';
 
 // ignore: must_be_immutable
 class MainScreen extends StatefulWidget{
@@ -60,10 +59,11 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // retrieve Username and userkey
     fetchUserDataFromFirebase();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     /*Connect and subscribe to feeds in Mqtt server */ 
-
     Timer(const Duration(seconds: 5), handleToSubscribe);
     if(isFetchDataSuccess == false){
       // If fail fetch again
@@ -94,6 +94,7 @@ class _MainScreenState extends State<MainScreen> {
               // ),
               const SizedBox(height: 16),
               SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: Container(
                 width: MediaQuery.sizeOf(context).width,
                 decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
@@ -596,7 +597,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() { 
     super.dispose();
     timer?.cancel();
-    
+
   }
   
 }

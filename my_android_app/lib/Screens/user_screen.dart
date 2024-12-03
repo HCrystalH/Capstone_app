@@ -68,6 +68,7 @@ class _UserScreenState extends State<UserScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
+                  // Name field
                   TextFormField(
                     controller: _listOfController[0],
                     focusNode: _listOfFocusNode[0],
@@ -76,13 +77,13 @@ class _UserScreenState extends State<UserScreen> {
                       hintText: "Enter Name",
                     ),
                     onChanged: (value){
-                      if(_listOfController[0].text != gotUserName){
-                        isDataChange = true;
-                      }
+                      if(_listOfController[0].text != gotUserName){isDataChange = true;}
+                      else {isDataChange = false;}
                     },
                   ),
 
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
+                  // Broker server
                   TextFormField(
                     controller: _listOfController[1],
                     focusNode: _listOfFocusNode[1],
@@ -91,13 +92,13 @@ class _UserScreenState extends State<UserScreen> {
                       hintText: "Enter Broker Server",
                     ),
                     onChanged: (value){
-                      if(_listOfController[1].text != gotServer){
-                        isDataChange = true;
-                      }
+                      if(_listOfController[1].text != gotServer){isDataChange = true;}
+                      else {isDataChange = false;}
                     },
                   ),
 
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
+                  // Password
                   TextFormField(
                     controller:  _listOfController[2],
                     focusNode: _listOfFocusNode[2],
@@ -108,7 +109,8 @@ class _UserScreenState extends State<UserScreen> {
                     onChanged:(value) {
                       if(value != gotUserPassword){
                         setState(() {
-                          isPassWordChange = true;  
+                          if(_listOfController[2].text != gotUserPassword) {isPassWordChange = true; } 
+                          else {isPassWordChange = false;}
                         });
                       }
                     },
@@ -121,9 +123,14 @@ class _UserScreenState extends State<UserScreen> {
                     decoration: const InputDecoration(
                       labelText: "Username",
                       hintText: "Enter Username",
-                    ),
+                    ),  
+                    onChanged: (value){
+                      if(_listOfController[3].text != gotUserName){isDataChange = true;}
+                      else {isDataChange = false;}
+                    },
                   ),
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
+                  
                   TextFormField(
                     controller:  _listOfController[4],
                     focusNode: _listOfFocusNode[4],
@@ -133,9 +140,8 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                     obscureText: false,
                     onChanged: (value){
-                      if(_listOfController[4].text != gotUserKey){
-                        isDataChange = true;
-                      }
+                      if(_listOfController[4].text != gotUserKey) {isDataChange = true;}
+                      else{ isDataChange = false;}
                     },
                   ),
 
@@ -212,7 +218,7 @@ class _UserScreenState extends State<UserScreen> {
       'password' : _listOfController[2].text,
     };
     try {
-      await userRef.update(updatedData);
+      
       debugPrint(isPassWordChange.toString());
       bool show = false;
       if(isPassWordChange == true){
@@ -220,9 +226,17 @@ class _UserScreenState extends State<UserScreen> {
         // ignore: use_build_context_synchronously
         showSnackBar(context, "Updating Password ! Please wait a few seconds",customColor:const Color.fromARGB(255, 4, 223, 243),textColor: Colors.white);
         await userRef.update(updatedPassword);
-        show = await _changePassword(userRef);
+        show = await _changeCredentials(userRef);
         // user.logOut();
+      }else if(isDataChange){
+        debugPrint("UPDATING DATA!!!");
+        await userRef.update(updatedData);
+        // ignore: use_build_context_synchronously
+        showSnackBar(context, "Updating Data ! Please wait a few seconds",customColor:const Color.fromARGB(255, 4, 223, 243),textColor: Colors.white);
+        // ignore: use_build_context_synchronously
+        showSnackBar(context,"UpDate Successfully !",customColor: Colors.green);
       }
+
       if(show){
         // ignore: use_build_context_synchronously
         showSnackBar(context,"Update Successfully ! Please Login again",customColor: Colors.green);
@@ -237,8 +251,9 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
   
-  Future<bool> _changePassword(DocumentReference userRef) async{
+  Future<bool> _changeCredentials(DocumentReference userRef) async{
     bool success = false;
+
     //Create an instance of the current user.
     // ignore: await_only_futures
     var user = await FirebaseAuth.instance.currentUser!;
@@ -260,6 +275,7 @@ class _UserScreenState extends State<UserScreen> {
     });
     debugPrint("changed: $success");
     return success;
+    
   }
 
   void logout() async{
