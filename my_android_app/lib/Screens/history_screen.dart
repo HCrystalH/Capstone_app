@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:my_android_app/Widget/snack_bar.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:http/http.dart' as https;
 import 'package:intl/intl.dart';
@@ -20,39 +21,15 @@ class _ChartScreenState extends State<ChartScreen> {
   List<ChartData> _humiData = [];
   // ignore: prefer_final_fields
   List<ChartData> _temperatureData = [];
-  // String username ='', userkey = '';
-  // DateTime startDate = DateTime.parse('2024-11-04T00:00:00Z'); // Start date
-  // DateTime endDate = DateTime.parse('2024-12-24T23:59:59Z'); 
   DateTime? startDate;
   DateTime? endDate= DateTime.now();
-  // List<ChartData> _chartData = [];
-  bool showAsDate = false;
+
   @override
   void initState(){
     startDate = endDate?.subtract(const Duration(days: 1));
     Timer(const Duration(seconds: 5),supportFunction);
     // Timer.periodic(const Duration(seconds: 60), fetchHistoryOfFeed);
     super.initState();
-    // genData();
-    // addTempData();
-  
-  }
-  void addTempData(){
-    for(int i = 0 ; i < 30; i++){
-      DateTime date = DateTime.now().subtract(const Duration(days: 1));
-      date = date.add(Duration(hours: i));
-      if(i < 10) {_temperatureData.add(ChartData(date,(20-i)));}
-      else if(i >= 10 && i < 20) {_temperatureData.add(ChartData(date,(20+i)));}
-      else {_temperatureData.add(ChartData(date,(27)));}
-    }
-  }
-  void genData(){
-    _humiData = List.generate(30, (index){
-      DateTime date = DateTime.now().subtract(const Duration(days: 1));
-      return ChartData(date, (index +1)*100);
-    }
-    
-    );
   }
 
   void supportFunction(){
@@ -81,81 +58,58 @@ class _ChartScreenState extends State<ChartScreen> {
   }
 
   Future<void> fetchHistoryOfFeed(String feedName, DateTime startDate, DateTime endDate) async{
-    // final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName';
     String username =  widget.brokerUserName;
     String userkey = widget.brokerUserKey;
-    
-    debugPrint("username to fetch : $username");
-    debugPrint("userkey to fetch : $userkey");
+    // debugPrint("username to fetch : $username");
+    // debugPrint("userkey to fetch : $userkey");
     final String url = 'https://io.adafruit.com/api/v2/$username/feeds/$feedName/data';
+    try{
     final response = await https.get(
       Uri.parse('$url?start=$startDate&end=$endDate'),
-      //  Uri.parse('$url?start=$startDate&end=$endDate'),
       headers: {
         'X-AIO-Key': userkey
       },
     );
-  // "X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  //"X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
-  // debugPrint(response.statusCode.toString());
-  if (response.statusCode == 200) {
-    // If the server returns a 200 OK response, parse the JSON.
-    final data = jsonDecode(response.body);
-    // final len = data;
-    // debugPrint("json size: $len");
-    _temperatureData.clear();
-    _humiData.clear();
-    // debugPrint(data.toString());
-    // extract data and add to the lists
-    for(var item in data){
-      var valueParts = item['value'].toString().split(','); // 'value': 30,80
-      // debugPrint("Values:" + valueParts.toString());
-      double? temp;
-      double? humi;
-      for(int i = 0; i<valueParts.length;i++){
-        if(i == 0 ){ temp = double.tryParse(valueParts[0]);}
-        else if(i == 1){humi  = double.tryParse(valueParts[1]);}
-      }
-      DateTime createdAt = DateTime.parse(item['created_at']).toLocal(); // Parse created_at to DateTime
-      // createdAt = createdAt.add( const Duration(hours: 7));
-      
-      // creaeAt
-      
-      // debugPrint("Time :" + createdAt.toString());
-      _temperatureData.add(ChartData(createdAt, temp));
-      _humiData.add(ChartData(createdAt, humi));
-    }
-    // debugPrint(data.toString());
-  } else {
-    // If the server did not return a 200 OK response, throw an exception.
-    throw Exception('Failed to load data from Adafruit IO');
-  }
-  }
-  
-  Color getColor(dynamic value, String type) {
-    if(type == "temperature"){
-      if (value >= 30) {
-        return Colors.red;
-      } else if (value <= 20) {
-        return Colors.green; 
-      } else{
-        return Colors.blue;
-      }
-    }else{
-      if(value > 40 && value < 60){
-        return Colors.blue;
-      }else if(value > 60){
-        return Colors.red;
+    //"X-AIO-Key: {io_key}" "https://io.adafruit.com/api/v2/{username}/feeds/{feed_key}/data?limit=1&end_time=2019-05-05T00:00Z"
+    // debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response, parse the JSON.
+      final data = jsonDecode(response.body);
+      // final len = data;
+      _temperatureData.clear();
+      _humiData.clear();
+      // debugPrint(data.toString());
 
-      }else{
-        return Colors.green;
+      // extract data and add to the lists
+      for(var item in data){
+        var valueParts = item['value'].toString().split(','); // 'value': 30,80
+        // debugPrint("Values:" + valueParts.toString());
+        double? temp;
+        double? humi;
+        for(int i = 0; i<valueParts.length;i++){
+          if(i == 0 ){ temp = double.tryParse(valueParts[0]);}
+          else if(i == 1){humi  = double.tryParse(valueParts[1]);}
+        }
+        DateTime createdAt = DateTime.parse(item['created_at']).toLocal(); // Parse created_at to DateTime
+        // createdAt = createdAt.add( const Duration(hours: 7));
+        // debugPrint("Time :" + createdAt.toString());
+        _temperatureData.add(ChartData(createdAt, temp));
+        _humiData.add(ChartData(createdAt, humi));
       }
+      // debugPrint(data.toString());
+    } else {
+      // If the server did not return a 200 OK response, throw an exception.
+      throw Exception('Failed to load data from Adafruit IO');
+    }
+    }catch (error){
+      debugPrint(error.toString());
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, error.toString());
     }
   }
 
-
-@override
-Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
   return Scaffold(
     resizeToAvoidBottomInset: false,
     body: SingleChildScrollView(
@@ -306,13 +260,6 @@ Widget build(BuildContext context) {
                     width: MediaQuery.sizeOf(context).width*0.1
                   ),
                 ),
-                // enabledBorder: OutlineInputBorder(
-                //   borderRadius: BorderRadius.circular(8.0),
-                //   borderSide: const BorderSide(
-                //     color: Colors.green, // Color when enabled
-                //     width: 5.0,
-                //   ),
-                // ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                   borderSide: const BorderSide(
@@ -322,19 +269,21 @@ Widget build(BuildContext context) {
                 ),
                 contentPadding: const EdgeInsets.fromLTRB(10, 20, 20, 15),
               ),
-              
               onTap: () => selectDateRange(context),
             ),
           ),
           ),
-        
           SizedBox(height:MediaQuery.sizeOf(context).height*0.02),
         ],
       ),
     ),
   );
 }
-
+  @override
+  void dispose(){
+    super.dispose();
+    
+  }
 }
 
 

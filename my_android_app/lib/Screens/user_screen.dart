@@ -21,7 +21,7 @@ class _UserScreenState extends State<UserScreen> {
   final AuthService _user = AuthService();
   final FirebaseServices _googleUser = FirebaseServices();
   
-  String gotUserName='', gotUserPassword='', gotServer='', gotUserAccount='', gotUserKey='';
+  String gotUserName='', gotUserPassword='', gotServer='', gotUserAccount='', gotUserKey='', gotEmail ='';
   bool isLoading = true; // To track loading state
   bool isPassWordChange = false;
   bool isDataChange = false;
@@ -68,6 +68,13 @@ class _UserScreenState extends State<UserScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
+                  TextFormField(
+                    readOnly: true,
+                    initialValue: gotEmail,
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                    ),
+                  ),
                   // Name field
                   TextFormField(
                     controller: _listOfController[0],
@@ -117,6 +124,7 @@ class _UserScreenState extends State<UserScreen> {
                     onSaved: (newValue) => {_listOfController[2]..text = newValue! },
                   ),
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
+                  // MQTT username
                   TextFormField(
                     controller:  _listOfController[3],
                     focusNode: _listOfFocusNode[3],
@@ -130,7 +138,7 @@ class _UserScreenState extends State<UserScreen> {
                     },
                   ),
                   SizedBox(height: MediaQuery.sizeOf(context).height*0.015),
-                  
+                  // MQTT user Key
                   TextFormField(
                     controller:  _listOfController[4],
                     focusNode: _listOfFocusNode[4],
@@ -149,28 +157,21 @@ class _UserScreenState extends State<UserScreen> {
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          // Handle save changes logic
-                          // updateUser (widget.uid);
-                          updateUser(widget.uid, isPassWordChange);
-                        },
+                        onPressed: () { updateUser(widget.uid, isPassWordChange);},
                         child: const Text('Save Changes'),
                       ),
                       SizedBox(width: MediaQuery.sizeOf(context).width*0.1),
                       ElevatedButton(
-                        onPressed: () {
-                          logout();
-                        },
+                        onPressed: () { logout();},
                         child: const Text('Log Out'),
                       ),
                     ]
                   ),
-                  
                 ],
               ),
             ),
-      ),
-      ),
+          ),
+        ),
       )
     );
   }
@@ -187,6 +188,7 @@ class _UserScreenState extends State<UserScreen> {
             gotUserPassword = userData['password'];
             gotUserAccount = userData['userName'];
             gotUserKey = userData['userKey'];
+            gotEmail = userData['email'];
             isLoading = false; // Set loading to false after data is fetched
 
             if(gotUserName != '') {_listOfController[0].text = gotUserName;}
@@ -194,6 +196,7 @@ class _UserScreenState extends State<UserScreen> {
             if(gotUserPassword != '') {_listOfController[2].text = gotUserPassword;}
             if(gotUserAccount != '') {_listOfController[3].text = gotUserAccount;}
             if(gotUserKey != '') {_listOfController[4].text = gotUserKey;}
+            if(gotEmail != '') {}
           });
         }
         // debugPrint(gotUserKey);
@@ -218,7 +221,6 @@ class _UserScreenState extends State<UserScreen> {
       'password' : _listOfController[2].text,
     };
     try {
-      
       debugPrint(isPassWordChange.toString());
       bool show = false;
       if(isPassWordChange == true){

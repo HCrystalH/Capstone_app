@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:my_android_app/Widget/snack_bar.dart';
 import 'package:vibration/vibration.dart';
 import 'package:my_android_app/services/database.dart';
 import '../services/mqtt_service.dart';
@@ -19,50 +20,38 @@ class MainScreen extends StatefulWidget{
 class _MainScreenState extends State<MainScreen> {
   
   /*____________________ Declaring Variables  _____________________*/ 
- 
-  // bool buttonRelay1=false,buttonRelay2= false,buttonRelay3=false,buttonRelay4=false;
-  // Hard code
+  // Variables for MQTT part
   late String server ="",username ="",userkey ="";
-  // String server ='io.adafruit.com';
-  // // String username = 'kienpham';
-  // String username = 'HVVH';
-  // String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
-  
-  // String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
-  // List<String> topics = ["data","relay1","relay2","relay3","relay4"];
-  final topics = ["topic0","topic1","topic2","topic3","topic4","topic5"];
   MqttHelper? user;
+  final topics = ["topic0","topic1","topic2","topic3","topic4","topic5"];
   List<String> values = [];
   List<String> listOfData = [];
   String humidData ='',tempData ='',energyData ='',currentData = '',voltageData = '', heatIndex ='';
   String notification = '';
-  Timer? timer;
   bool isConnected = false , isGetData = false, isNormal = false;
+
   bool _isLoading = true;  // using for loading page
+  List<bool> listOfButtonRelay = [false,false,false,false];   //[0] : buttonRelay1 , [1]: buttonRelay2 ,...
+  // variables to get User information from firebase
+  SupportedUser? gotuser; 
   bool isFetchDataSuccess = false;
-  // bool _isLoading = false;
-  //[0] : buttonRelay1 , [1]: buttonRelay2 ,...
-  List<bool> listOfButtonRelay = [false,false,false,false];
-  // final Completer<void> _connectionCompleter = Completer<void>();
-  
-  SupportedUser? gotuser;
 
   /*____________________ Declaring Variables END HERE _____________________*/ 
-  //*****************************************************************\\
   // Call this one to avoid error setState() called after dispose
   @override
   void setState(fn) {
     if(mounted) {super.setState(fn);}
   }
   
-  
   @override
   void initState() {
     super.initState();
     fetchUserDataFromFirebase();
+    // Set this screen to be Up only (cannot rotate screen to left, right, down)
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    
     /*Connect and subscribe to feeds in Mqtt server */ 
     Timer(const Duration(seconds: 5), handleToSubscribe);
     if(isFetchDataSuccess == false){
@@ -98,18 +87,14 @@ class _MainScreenState extends State<MainScreen> {
                 child: Container(
                 width: MediaQuery.sizeOf(context).width,
                 decoration: BoxDecoration(color: Colors.white , borderRadius: BorderRadius.circular(25)),
-                // padding:const EdgeInsets.only(left:8, right: 15),
                 child:  
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // mainAxisSize: MainAxisSize.max,
                   children: [
                     // Motion card
                     dataCard("Humidity","$humidData %",const Icon(Icons.water_drop_outlined)),
-              
                     // Temperature card
                     dataCard("Temp", "$tempData°C",const Icon(Icons.thermostat)),
-
                     // Power consumption card
                     dataCard("Power", "$energyData kWh",const Icon(Icons.energy_savings_leaf)),
                   ],
@@ -178,6 +163,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               ),
               SizedBox(height:  MediaQuery.sizeOf(context).height/60),
+              // Buttons 
               SafeArea(
                 child: Row(
                 children: [
@@ -215,7 +201,7 @@ class _MainScreenState extends State<MainScreen> {
       textColor = Colors.black;
     }
     if(feedName == 'relay1'){
-    switchName = relay("relay1");
+      switchName = relay("relay1");
     }else if(feedName == 'relay2'){
       switchName = relay("relay2");
     }else if(feedName == 'relay3'){
@@ -381,11 +367,9 @@ class _MainScreenState extends State<MainScreen> {
   }
  
   void subscribeToFeeds() async{
-    
     // using if condition to avoid null check operator
     if(isFetchDataSuccess){
       String clientID = widget.uid.substring(1,11);
-      // user = MqttHelper(serverAddress: server, userName: username, userKey: userkey);
       user = MqttHelper(serverAddress: widget.brokerServer, userName: widget.brokerUserName, userKey: widget.brokerUserKey);
       user!.mqttConnect(clientID);
       user!.mqttSubscribe('$username/feeds/${topics[0]}');
@@ -401,7 +385,6 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint("Fail to subscribe!!!");
     }
   }
- 
   /*
     Function to fetch data from MQTT server
       Duration: adjustable , default: 500ms
@@ -430,8 +413,6 @@ class _MainScreenState extends State<MainScreen> {
               }
             });
           }
-          debugPrint("temp: $tempData" );
-          debugPrint("Humi: $humidData" );
         }
         else if(c[0].topic=='$username/feeds/${topics[1]}'){
           if(pt == '0' && listOfButtonRelay[0] != false){
@@ -468,8 +449,6 @@ class _MainScreenState extends State<MainScreen> {
 }  
 
   Future<void> getStateOneTime() async {
-  // await _connectionCompleter.future; // Wait for the connection to be established
-
     for (int i = 0; i <= 5; i++) {
       String data =  await fetchData(topics[i]);
       debugPrint(data);
@@ -535,22 +514,18 @@ class _MainScreenState extends State<MainScreen> {
           }
         }
       });
-      // debugPrint(listOfButtonRelay[i-1].toString());
     }
-    
     setState(() {_isLoading = false;});
-}
+  }
   
   void handleToGetState() async {
     if(isConnected){
       getStateOneTime();
       getState();
-    }else{
-      debugPrint("Not connected to get Data!!!");
-    }
+    }else{  debugPrint("Not connected to get Data!!!");}
   }
+  
   void handleToSubscribe(){
-
     // Data passed from HomeScreen
     if(widget.brokerServer != "" && widget.brokerUserName != '' && widget.brokerUserKey != ''){ 
       setState(() {isFetchDataSuccess = true;}); 
@@ -560,7 +535,6 @@ class _MainScreenState extends State<MainScreen> {
   }
  
   Future<void> fetchUserDataFromFirebase( ) async{
-    
     try{
       gotuser = SupportedUser(widget.uid);
       gotuser!.getUserInfor( 'userName').then((String result){
@@ -577,26 +551,27 @@ class _MainScreenState extends State<MainScreen> {
             setState( () {
               userkey = result;
               widget.brokerUserKey = userkey;
-            }); 
-
+            });
           }
       });
       gotuser!.getUserInfor( 'server').then((String result){
         // debugPrint(result);
-          if(result != "Do not have certain data!!!") {setState( () {
+          if(result != "Do not have certain data!!!") {
+            setState( () {
             server = result;
             widget.brokerServer = server;
-          }); }
+          }); 
+          }
       });
     }catch (e){
       debugPrint(e.toString());
+      showSnackBar(context, e.toString());
     }
   }
   
   @override
   void dispose() { 
     super.dispose();
-    timer?.cancel();
 
   }
   

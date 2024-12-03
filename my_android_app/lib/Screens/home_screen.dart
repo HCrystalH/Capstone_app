@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen>{
         children:  [
           MainScreen(uid: '$gotUID',brokerServer: server,brokerUserName:username ,brokerUserKey: userkey),
           ChartScreen(brokerUserKey: userkey,brokerUserName: username,),
-          const PowerConsumptionScreen(),
+          PowerConsumptionScreen(brokerUserKey: userkey,brokerUserName: username,),
           UserScreen(uid: '$gotUID'),
         ],
       ),
