@@ -14,3 +14,6 @@ distributionUrl=https\://services.gradle.org/distributions/gradle-7.4-all.zip
 3.Check kotlin version 
 -- if the problem is "duplicated class in Kotlin" --> change to  id "org.jetbrains.kotlin.android" version "1.8.0" apply false
 in settings.gradle (project) 
+
+4. Incompatible Kotlin : 
+--> Remove mavenCentral() in build.gradle(project/android) and use local kotlin(e.g:  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
