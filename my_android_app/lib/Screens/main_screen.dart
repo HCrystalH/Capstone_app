@@ -26,9 +26,9 @@ class _MainScreenState extends State<MainScreen> {
   // String server ='io.adafruit.com';
   // // String username = 'kienpham';
   // String username = 'HVVH';
-  // String userkey = 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo';
+  // String userkey = '';
   
-  // String userkey = "aio_Tnpj47d84kbmMCIu8SLNsBAaNdEZ";
+  // String userkey = "";
   // List<String> topics = ["data","relay1","relay2","relay3","relay4"];
   final topics = ["topic0","topic1","topic2","topic3","topic4","topic5"];
   MqttHelper? user;
