@@ -156,7 +156,7 @@ void onAutoReconnected() {
 }
 
 // void main()async{
-//   MqttHelper user = MqttHelper(serverAddress: 'io.adafruit.com', userName: 'HVVH', userKey: 'aio_Urvv98tocEDOmtPAMqsPnWt6onBo');
+//   MqttHelper user = MqttHelper(serverAddress: 'io.adafruit.com', userName: 'HVVH', userKey: '');
 
 //   user.mqttConnect();
 //   user.mqttSubscribe('HVVH/feeds/data');
